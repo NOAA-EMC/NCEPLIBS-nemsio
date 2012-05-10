@@ -31,8 +31,13 @@ If you are on NEMS trunk version 16506 or earlier, and would like to stick at th
 	"use nemsio_module_mpi"
 	in file module_PHYSICS_INIT_READ_NEMSIO.F90 and module_DYNAMICS_INIT_READ_NEMSIO.F90
 
+b)NEMS GFS output data
+  If you are accessing folowing NEMS GFS output flx fields from NEMS trunk verion 14719 and before, 
+    csulwrf csuswrf csdlwrf csdswrf snohfa smcwlt smcref sunshine
 
+  You should access them with standard names in ncep grib table, which are shown in NEMS trunk verion 14725 and later.
+    csulf csusf csdlf csdsf  snohf wilt fldcp sunsd
 
 
 @@@: 
-  if you have questions on nemsio lib, please email me at: jun.wang@noaa.gov
+  if you have questions on nemsio lib, please email: jun.wang@noaa.gov
