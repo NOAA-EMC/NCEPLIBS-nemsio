@@ -3,9 +3,17 @@ nceplibs/nemsio lib:
 svn site:
 https://svnemc.ncep.noaa.gov/projects/nceplibs/nemsio/trunk
 
+--- 20120723
+1)fix data type for input argument IX in subroutine BAFRINDEX of bafrio.f
+
+2)when option "rdwr" is chosen to update a nemsio grib file, a bug is fixed to read out pressure fields.
+
+3)For nemsio grib file, the Gaussian grid information will be computed only once.
+
+These changes have no impact on the results.
 
  
-20120509:
+--- 20120509:
 
 1)This nemsio version is v17978 from nemsio repository :
 
