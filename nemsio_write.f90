@@ -84,7 +84,7 @@ contains
     if(present(iret)) iret=-61
     call nemsio_getfilehead(gfile,iret=iret,gdatatype=tmpgdatatype,dimx=mydimx,  &
            dimy=mydimy,dimz=mydimz,nframe=mynframe,tlmeta=mytlmeta,              &
-           flunit=myflunit,do_byteswap=do_byteswap )
+           flunit=myflunit,do_byteswap=do_byteswap)
     myfieldsize=(mydimx+2*mynframe)*(mydimy+2*mynframe)
     mygdatatype=tmpgdatatype(1:4)
     if(present(iret)) iret=0
@@ -100,7 +100,7 @@ contains
 ! abstract: write nemsio a 2D 32 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     integer(nemsio_intkind),intent(in)            :: jrec
     real(nemsio_realkind),intent(in)              :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
@@ -146,7 +146,7 @@ contains
 ! abstract: write nemsio a 2D 64 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     integer(nemsio_intkind),intent(in)            :: jrec
     real(nemsio_dblekind),intent(in)              :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
@@ -192,7 +192,7 @@ contains
 ! abstract: write nemsio a 2D 32 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     character(*),intent(in)                       :: name
     character(*),optional,intent(in)              :: levtyp
     integer(nemsio_intkind),optional,intent(in)   :: lev
@@ -241,7 +241,7 @@ contains
 ! abstract: write nemsio a 2D 32 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     character(*),intent(in)                       :: name
     character(*),optional,intent(in)              :: levtyp
     integer(nemsio_intkind),optional,intent(in)   :: lev
@@ -293,7 +293,7 @@ contains
 ! abstract: write nemsio a 2D 32 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     integer(nemsio_intkind),intent(in)            :: jrec
     real(nemsio_realkind),intent(in)              :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
@@ -340,7 +340,7 @@ contains
 ! abstract: write nemsio a 2D 64 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     integer(nemsio_intkind),intent(in)            :: jrec
     real(nemsio_dblekind),intent(in)              :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
@@ -390,7 +390,7 @@ contains
 ! abstract: write nemsio a 2D 32 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     character(*),intent(in)                       :: name
     character(*),optional,intent(in)              :: levtyp
     integer(nemsio_intkind),optional,intent(in)   :: lev
@@ -439,7 +439,7 @@ contains
 ! abstract: write nemsio a 2D 32 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     character(*),intent(in)                       :: name
     character(*),optional,intent(in)              :: levtyp
     integer(nemsio_intkind),optional,intent(in)   :: lev
@@ -621,7 +621,7 @@ contains
 !           using w3_4 library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)               :: gfile
+    type(nemsio_gfile),intent(inout)            :: gfile
     integer(nemsio_intkind),intent(in)          :: jrec
     real(nemsio_realkind),intent(in)            :: data(:)
     integer(nemsio_intkind),optional,intent(out):: iret
@@ -705,7 +705,7 @@ contains
 !           using w3_d library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)               :: gfile
+    type(nemsio_gfile),intent(inout)            :: gfile
     integer(nemsio_intkind),intent(in)          :: jrec
     real(nemsio_realkind),intent(in)            :: data(:)
     integer(nemsio_intkind),optional,intent(out):: iret
@@ -801,7 +801,7 @@ contains
 !           using w3_d library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)               :: gfile
+    type(nemsio_gfile),intent(inout)            :: gfile
     integer(nemsio_intkind),intent(in)          :: jrec
     real(nemsio_dblekind),intent(in)            :: data8(:)
     integer(nemsio_intkind),optional,intent(out):: iret
@@ -884,7 +884,7 @@ contains
 !           using w3_4 library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)               :: gfile
+    type(nemsio_gfile),intent(inout)            :: gfile
     character*(*),intent(in)                    :: vname,vlevtyp
     integer(nemsio_intkind),intent(in)          :: vlev
     real(nemsio_realkind),intent(in)            :: data(:)
@@ -970,7 +970,7 @@ contains
 !           using w3_d library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)               :: gfile
+    type(nemsio_gfile),intent(inout)            :: gfile
     character*(*),intent(in)                   :: vname,vlevtyp
     integer(nemsio_intkind),intent(in)          :: vlev
     real(nemsio_realkind),intent(in)            :: data(:)
@@ -1059,7 +1059,7 @@ contains
 !           using w3_d library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)               :: gfile
+    type(nemsio_gfile),intent(inout)            :: gfile
     character*(*),intent(in)                   :: vname,vlevtyp
     integer(nemsio_intkind),intent(in)          :: vlev
     real(nemsio_dblekind),intent(in)            :: data8(:)

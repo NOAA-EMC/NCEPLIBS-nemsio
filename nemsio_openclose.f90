@@ -284,6 +284,8 @@ module nemsio_openclose
     integer(nemsio_intkind8)    :: tlmetaaryival=nemsio_intfill
     character(16)               :: file_endian=''
     logical                     :: do_byteswap=.false.
+    integer(nemsio_intkind)     :: jgds(200)=nemsio_kpds_intfill
+    integer(nemsio_intkind)     :: igrid
   end type nemsio_gfile
 !
 !------------------------------
@@ -1264,10 +1266,16 @@ contains
     gfile%gtype="NEMSIO"
     gfile%do_byteswap=.false.
     if(present(gdatatype)) then
-      if ( trim(gdatatype).ne.'grib'.and.gdatatype(1:3).ne.'bin'.and. &
+      if ( trim(gdatatype(1:4)).ne.'grib'.and.gdatatype(1:3).ne.'bin'.and. &
            trim(gdatatype).ne.'') return
       gfile%gdatatype=gdatatype
-      if(trim(gdatatype)=='') gfile%gdatatype='grib'
+      if(trim(gdatatype)=='') then
+        if(trim(machine_endian)=='little_endian') then
+          gfile%gdatatype='grib_le'
+        elseif(trim(machine_endian)=='big_endian') then
+          gfile%gdatatype='grib_ge'
+        endif
+      endif
       if(trim(gfile%gdatatype(6:7))=='be')then
         gfile%file_endian='big_endian'
       elseif(trim(gfile%gdatatype(6:7))=='le') then
@@ -3700,7 +3708,7 @@ contains
 !           jgds
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                :: gfile
+    type(nemsio_gfile),intent(inout)             :: gfile
     type(nemsio_grbmeta),intent(out)             :: grbmeta
     integer(nemsio_intkind),optional,intent(in)  :: jrec
     character(*),optional,intent(in)             :: vname,vlevtyp
@@ -3713,7 +3721,7 @@ contains
     integer(nemsio_intkind),optional,intent(in)  :: ibms
     integer(nemsio_intkind),optional,intent(in)  :: precision
     character(255) :: name,levtyp
-    integer :: icen,igrid,iptv,itl,jbms,jftu,jp1,jp2,jtr,jna,jnm,ios
+    integer :: icen,iptv,itl,jbms,jftu,jp1,jp2,jtr,jna,jnm,ios
     integer :: i,lev,ktbl,krec,idrt_in
 !------------------------------------------------------------
 ! with record number, find record name, level type and level
@@ -3753,7 +3761,8 @@ contains
 !------------------------------------------------------------
 !--- read:set jpds5,6,7
 !    if ( lowercase(gfile%gaction)(1:4).eq."read") then
-    if ( equal_str_nocase(trim(gfile%gaction),"read") ) then
+    if ( equal_str_nocase(trim(gfile%gaction),"read") .or.   &
+         equal_str_nocase(trim(gfile%gaction),"rdwr") ) then
       grbmeta%jpds(05)=gribtable(ktbl)%item(krec)%g1param
       grbmeta%jpds(06)=gribtable(ktbl)%item(krec)%g1level
       grbmeta%jpds(07)=lev
@@ -3797,19 +3806,26 @@ contains
 !
       icen=7
 !
-      if ( present(w34) ) then
-        call nemsio_makglgds(gfile,idrt_in,igrid,grbmeta%jgds,ios,w34)
-      else
-        call nemsio_makglgds(gfile,idrt_in,igrid,grbmeta%jgds,ios)
-!        write(0,*)'after nemsio_makglgds,idrt=',idrt_in,'ios=',ios,'igrid=',igrid, &
+      if(maxval(gfile%jgds)==nemsio_kpds_intfill.and.            &
+         minval(gfile%jgds)==nemsio_kpds_intfill ) then
+        if ( present(w34) ) then
+          call nemsio_makglgds(gfile,idrt_in,grbmeta%jgds,ios,w34)
+          gfile%jgds=grbmeta%jgds
+        else
+          call nemsio_makglgds(gfile,idrt_in,grbmeta%jgds,ios)
+          gfile%jgds=grbmeta%jgds
+!        write(0,*)'after nemsio_makglgds,idrt=',idrt_in,'ios=',ios, &
 !          'jbms=',jbms
+        endif
+      else
+        grbmeta%jgds=gfile%jgds
       endif
       if(ios.ne.0) return
       iptv=gribtable(ktbl)%iptv
 !      itl=1
       jna=0
       jnm=0
-      call nemsio_makglpds(gfile,iptv,icen,igrid,jbms,&
+      call nemsio_makglpds(gfile,iptv,icen,jbms,&
            jftu,jp1,jp2,jtr,jna,jnm,jrec,ktbl,krec,lev,grbmeta%jpds,ios)
 !        write(0,*)'after nemsio_makglpds,jpds=',grbmeta%jpds(1:25),'ios=',ios,  &
 !           'lev=',lev
@@ -3823,19 +3839,19 @@ contains
     iret=0 
   end subroutine nemsio_setrqst    
 
-  subroutine nemsio_makglgds(gfile,idrt,igrid,kgds,iret,w34)
+  subroutine nemsio_makglgds(gfile,idrt,kgds,iret,w34)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: set up gds for grib meta
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in) :: gfile
+    type(nemsio_gfile),intent(inout) :: gfile
     integer(nemsio_intkind),intent(out)  :: iret
     integer,intent(in):: idrt
     integer,optional,intent(in):: w34
-    integer,intent(out):: igrid,kgds(200)
+    integer,intent(out):: kgds(200)
     real(nemsio_dblekind) :: slat8(gfile%dimy)
     real(nemsio_realkind) :: slat4(gfile%dimy)
-    integer :: n
+    integer :: n,igrid
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     iret=-5
     igrid=255
@@ -3846,6 +3862,7 @@ contains
     if(idrt.eq.4.and.gfile%dimx.eq.384.and.gfile%dimy.eq.192) igrid=126
     if(idrt.eq.4.and.gfile%dimx.eq.512.and.gfile%dimy.eq.256) igrid=170
     if(idrt.eq.4.and.gfile%dimx.eq.768.and.gfile%dimy.eq.384) igrid=127
+    gfile%igrid=igrid
 !    write(0,*)'in nemsio_makdglgds,idrt=',idrt,'dimx=',gfile%dimx,'dimy=',gfile%dimy
     kgds(1)=modulo(idrt,256)
     kgds(2)=gfile%dimx
@@ -3889,21 +3906,23 @@ contains
     iret=0
   end subroutine nemsio_makglgds
 !------------------------------------------------------------------------------
-  subroutine nemsio_makglpds(gfile,iptv,icen,igrid,ibms,&
+  subroutine nemsio_makglpds(gfile,iptv,icen,ibms,&
                     iftu,ip1,ip2,itr,ina,inm,jrec,ktbl,krec,lev,kpds,iret)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: set up gps for grib meta
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
     type(nemsio_gfile),intent(in)  :: gfile
-    integer,intent(in):: iptv,icen,igrid,ibms
+    integer,intent(in):: iptv,icen,ibms
     integer,intent(in):: iftu,ip1,ip2,itr,ina,inm,jrec,ktbl,krec,lev
    integer,intent(out):: kpds(200)
    integer(nemsio_intkind),intent(out)  :: iret
-   integer :: i,igen,icen2
+   integer :: i,igen,icen2,igrid
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     iret=-5
 !
+!igrid
+    igrid=gfile%igrid
 !get igen icen2 
     call nemsio_getheadvar(gfile,'igen',igen,iret)
     if (iret.ne.0 ) then
@@ -4489,6 +4508,7 @@ contains
     gfile%tlmetaaryival=nemsio_intfill
     gfile%file_endian=''
     gfile%do_byteswap=.false.
+    gfile%jgds=nemsio_kpds_intfill
 !
     gfile%gfname=''
     gfile%gaction=''

@@ -6,10 +6,11 @@
       INTEGER,INTENT(INOUT):: LX
       INTEGER,INTENT(OUT):: IX
       logical,intent(in) :: do_byteswap
-      integer(kind=8) :: LONG_JB,LONG_JX
+      integer(kind=8) :: LONG_JB,LONG_JX,LONG_IX
 !
-      call BAFRINDEXL(LU,LONG_JB,LONG_JX,IX,do_byteswap)
+      call BAFRINDEXL(LU,LONG_JB,LONG_JX,LONG_IX,do_byteswap)
       LX=LONG_JX
+      IX=LONG_IX
       return
       end SUBROUTINE BAFRINDEX
 !-----------------------------------------------------------------------
