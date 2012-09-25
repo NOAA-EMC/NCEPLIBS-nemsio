@@ -5,8 +5,8 @@ FREE        = -qfree=f90
 FIXED       = -qfixed
 FFLAGS      = -O3
 
-CC          = xlc
-CCFLAGS     = -DIBM8
+#CC          = xlc
+#CCFLAGS     = -DIBM8
 
 AR          = ar
 ARFLAGS     = -rvu -X64

@@ -3,8 +3,8 @@ SHELL       = /bin/sh
 FC          = ftn
 FFLAGS      = -O -g -traceback
 
-CC          = cc
-CCFLAGS     = -DLINUX
+#CC          = cc
+#CCFLAGS     = -DLINUX
 
 AR          = ar
 ARFLAGS     = -rvu

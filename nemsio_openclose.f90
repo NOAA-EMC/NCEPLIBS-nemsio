@@ -5343,54 +5343,6 @@ contains
 !
 !-----------------------------------------------------------------------
 !
-      subroutine chk_endianc(endian)
-!
-        implicit none
-!
-        character(16),intent(out)    :: endian
-!     ------------------------------------------------------------------
-        INTEGER,PARAMETER :: ASCII_0 = 48,ASCII_1 = 49,ASCII_2 = 50,    &
-                           ASCII_3 = 51
-        INTEGER(4)        :: I
-        common// I
-!     ------------------------------------------------------------------
-!***** code start
-!     ------------------------------------------------------------------
-        I = ASCII_0 + ASCII_1*256 + ASCII_2*(256**2) + ASCII_3*(256**3)
-        call sub(endian)
-!
-!     ------------------------------------------------------------------
-!
-      end subroutine chk_endianc
-!
-!-----------------------------------------------------------------------
-!
-      subroutine sub(endian)
-!
-        implicit none
-!
-        character(16),intent(out)        :: endian
-!        character,intent(inout) :: i*4
-        character               :: i*4
-        common//  i
-!     ------------------------------------------------------------------
-        if(i .eq. '0123') then
-!          WRITE(*,*) ' Machine is Little-Endian '
-          endian='little_endian'
-          return
-        elseif (i .eq. '3210') then
-!          WRITE(*,*) ' Machine is Big-Endian '
-          endian='big_endian'
-          return
-        else
-!          WRITE(*,*) ' Mixed endianity machine ... '
-          endian='mixed_endian'
-          return
-        endif
-!
-!     ------------------------------------------------------------------
-!
-      end subroutine sub
 !
 !-----------------------------------------------------------------------
 !
