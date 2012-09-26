@@ -1,10 +1,7 @@
 SHELL       = /bin/sh
 
-FC          = mpfort
+FC          = mpiifort
 FFLAGS      = -O -g 
-
-#CC          = icc
-#CCFLAGS     = -O3 -DUNDERSCORE -DLINUX
 
 AR          = ar
 ARFLAGS     = -rvu
