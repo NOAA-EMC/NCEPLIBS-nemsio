@@ -1265,28 +1265,23 @@ contains
     iret=-3
     gfile%gtype="NEMSIO"
     gfile%do_byteswap=.false.
+    gfile%file_endian='big_endian'
     if(present(gdatatype)) then
       if ( trim(gdatatype(1:4)).ne.'grib'.and.gdatatype(1:3).ne.'bin'.and. &
            trim(gdatatype).ne.'') return
       gfile%gdatatype=gdatatype
       if(trim(gdatatype)=='') then
-        if(trim(machine_endian)=='little_endian') then
-          gfile%gdatatype='grib_le'
-        elseif(trim(machine_endian)=='big_endian') then
-          gfile%gdatatype='grib_ge'
-        endif
+        gfile%gdatatype='grib_ge'
       endif
       if(trim(gfile%gdatatype(6:7))=='be')then
         gfile%file_endian='big_endian'
       elseif(trim(gfile%gdatatype(6:7))=='le') then
         gfile%file_endian='little_endian'
-      else
-        gfile%file_endian=machine_endian
       endif
-      if(trim(machine_endian)/=trim(gfile%file_endian)) gfile%do_byteswap=.true.
     elseif(trim(gfile%gdatatype).eq.'') then
       gfile%gdatatype='grib'
     endif
+    if(trim(machine_endian)/=trim(gfile%file_endian)) gfile%do_byteswap=.true.
     if(present(modelname)) then 
       gfile%modelname=modelname
     elseif(trim(gfile%gdatatype).eq.'') then
