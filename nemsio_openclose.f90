@@ -1270,9 +1270,6 @@ contains
       if ( trim(gdatatype(1:4)).ne.'grib'.and.gdatatype(1:3).ne.'bin'.and. &
            trim(gdatatype).ne.'') return
       gfile%gdatatype=gdatatype
-      if(trim(gdatatype)=='') then
-        gfile%gdatatype='grib_ge'
-      endif
       if(trim(gfile%gdatatype(6:7))=='be')then
         gfile%file_endian='big_endian'
       elseif(trim(gfile%gdatatype(6:7))=='le') then
