@@ -1761,10 +1761,10 @@ contains
       if(all(gfile%dy==0.)) gfile%dy=nemsio_realfill
       iskip=iskip+nwrite
       iwrite=kind(gfile%dy)*size(gfile%dy)
-      if(gfile%do_byteswap) call byteswap(gfile%dx,nemsio_realkind,size(gfile%dy))
+      if(gfile%do_byteswap) call byteswap(gfile%dy,nemsio_realkind,size(gfile%dy))
       call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%dy,gfile%do_byteswap)
       if(nwrite.lt.iwrite) return
-      if(gfile%do_byteswap) call byteswap(gfile%dx,nemsio_realkind,size(gfile%dy))
+      if(gfile%do_byteswap) call byteswap(gfile%dy,nemsio_realkind,size(gfile%dy))
       gfile%tlmetady=gfile%tlmeta
       gfile%tlmeta=gfile%tlmeta+nwrite
       nummeta=nummeta-1
@@ -1786,10 +1786,10 @@ contains
       if(all(gfile%ri==0.)) gfile%ri=nemsio_realfill
       iskip=iskip+nwrite
       iwrite=kind(gfile%Ri)*size(gfile%Ri)
-      if(gfile%do_byteswap) call byteswap(gfile%Cpi,nemsio_realkind,size(gfile%Ri))
+      if(gfile%do_byteswap) call byteswap(gfile%Ri,nemsio_realkind,size(gfile%Ri))
       call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%Ri,gfile%do_byteswap)
       if(nwrite.lt.iwrite) return
-      if(gfile%do_byteswap) call byteswap(gfile%Cpi,nemsio_realkind,size(gfile%Ri))
+      if(gfile%do_byteswap) call byteswap(gfile%Ri,nemsio_realkind,size(gfile%Ri))
       gfile%tlmeta=gfile%tlmeta+nwrite
       nummeta=nummeta-1
     endif
@@ -1914,8 +1914,10 @@ contains
         do i=1,gfile%nmetaaryi
           iskip=iskip+nwrite
           iwrite=kind(gfile%aryival)*gfile%aryilen(i)
+          if(gfile%do_byteswap) call byteswap(gfile%aryival(:,i),nemsio_intkind,gfile%aryilen(i))
           call bafrwritel(gfile%flunit,iskip,iwrite,nwrite, &
                          gfile%aryival(1:gfile%aryilen(i),i),gfile%do_byteswap)
+          if(gfile%do_byteswap) call byteswap(gfile%aryival(:,i),nemsio_intkind,gfile%aryilen(i))
           if(nwrite.lt.iwrite) return
           gfile%tlmeta=gfile%tlmeta+nwrite
         enddo
@@ -1937,8 +1939,10 @@ contains
         do i=1,gfile%nmetaaryr
           iskip=iskip+nwrite
           iwrite=kind(gfile%aryrval)*gfile%aryrlen(i)
+          if(gfile%do_byteswap) call byteswap(gfile%aryrval(:,i),nemsio_realkind,gfile%aryrlen(i))
           call bafrwritel(gfile%flunit,iskip,iwrite,nwrite, &
                          gfile%aryrval(1:gfile%aryrlen(i),i),gfile%do_byteswap)
+          if(gfile%do_byteswap) call byteswap(gfile%aryrval(:,i),nemsio_realkind,gfile%aryrlen(i))
           if(nwrite.lt.iwrite) return
           gfile%tlmeta=gfile%tlmeta+nwrite
         enddo
