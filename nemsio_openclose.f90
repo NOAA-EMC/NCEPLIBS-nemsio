@@ -895,7 +895,7 @@ contains
       iread=nemsio_lmeta3-8
       call bafrreadl(gfile%flunit,iskip,iread,nread,meta3,gfile%do_byteswap)
       if(nread.lt.iread) return
-      if(gfile%do_byteswap) call byteswap(meta3%nmetavari,nemsio_intkind,10)
+      if(gfile%do_byteswap) call byteswap(meta3%nmetavari,nemsio_intkind,8)
     else
       if(gfile%do_byteswap) call byteswap(meta3%nmetavari,nemsio_intkind,10)
       gfile%nmetavarr8=meta3%nmetavarr8
