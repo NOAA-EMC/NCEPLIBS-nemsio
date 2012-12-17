@@ -3,7 +3,7 @@ include conf/configure
 LIB	= ./libnemsio.a
 INCMOD	= ./incmod
 
-OBJS    = nemsio_openclose.o nemsio_read.o nemsio_write.o nemsio_module.o nemsio_module_mpi.o bafrio.o
+OBJS    = nemsio_openclose.o nemsio_read.o nemsio_write.o nemsio_module.o nemsio_module_mpi.o
 
 $(LIB):	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
