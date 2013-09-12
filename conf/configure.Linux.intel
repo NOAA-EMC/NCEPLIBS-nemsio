@@ -1,0 +1,9 @@
+SHELL       = /bin/sh
+
+FC          = mpif90 -fc=ifort
+FFLAGS      = -O -g 
+
+AR          = ar
+ARFLAGS     = -rvu
+
+RM          = rm
