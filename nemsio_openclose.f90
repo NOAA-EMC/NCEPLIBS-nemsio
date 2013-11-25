@@ -4237,7 +4237,7 @@ contains
     endif
     if(gfile%nmeta>=6)then
       allocate(gfile%vcoord(dimvcoord1,3,2) ,stat=iret2) 
-      if(iret3.eq.0) then
+      if(iret2.eq.0) then
       gfile%vcoord=nemsio_realfill
       endif
       iret=iret+abs(iret2)
@@ -4934,6 +4934,12 @@ contains
     gribtable(1)%item(117)=nemsio_grbtbl_item('csdsf','sfc',0,0,161,1)
     gribtable(1)%item(118)=nemsio_grbtbl_item('csulf','sfc',0,0,162,1)
     gribtable(1)%item(119)=nemsio_grbtbl_item('snohf','sfc',0,0,229,1)
+
+    gribtable(1)%item(120)=nemsio_grbtbl_item('vbdsf','sfc',0,0,166,1)
+    gribtable(1)%item(121)=nemsio_grbtbl_item('vddsf','sfc',0,0,167,1)
+    gribtable(1)%item(122)=nemsio_grbtbl_item('nbdsf','sfc',0,0,168,1)
+    gribtable(1)%item(123)=nemsio_grbtbl_item('nddsf','sfc',0,0,169,1)
+    gribtable(1)%item(124)=nemsio_grbtbl_item('cpofp','sfc',0,0,194,1)
 !    
 !    gribtable(1)%item(50)=nemsio_grbtbl_item('nlat','sfc',2,0,176,1)
 !    gribtable(1)%item(51)=nemsio_grbtbl_item('elon','sfc',2,0,177,1)
