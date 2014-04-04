@@ -1,6 +1,6 @@
 SHELL       = /bin/sh
 
-FC          = mpif90 -fc=ifort
+FC          = mpif90
 FFLAGS      = -O -g 
 
 AR          = ar
