@@ -22,7 +22,7 @@ elif [ $target = cray ]; then
  module load PrgEnv-intel
  module load craype-sandybridge
  export FC='ftn'
-elif [$target = theia ]; then
+elif [ $target = theia ]; then
  module load intel
  export FC='mpiifort'
 fi
@@ -32,8 +32,6 @@ export FFLAGS='-O -g'
 export AR='ar'
 export ARFLAGS='-rvu'
 export RM='rm'
-
-echo FC=$FC
 
 make clean
 make
