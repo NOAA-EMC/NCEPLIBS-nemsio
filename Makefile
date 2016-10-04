@@ -1,7 +1,13 @@
-include conf/configure
+#include conf/configure
+
 
 LIB	= ./libnemsio.a
 INCMOD	= ./incmod
+FFLAGS      = -O -g
+AR          = ar
+ARFLAGS     = -rvu
+RM          = rm
+
 
 OBJS    = nemsio_openclose.o nemsio_read.o nemsio_write.o nemsio_module.o nemsio_module_mpi.o
 
@@ -20,6 +26,8 @@ clean:
 
 .f.o:
 	$(FC) $(FFLAGS) $(FIXED) -c $*.f
+
+%.o: %.mod
 
 nemsio_read.o: nemsio_openclose.o
 nemsio_write.o: nemsio_openclose.o
