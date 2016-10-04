@@ -23,7 +23,7 @@ elif [ $target = cray ]; then
  module load craype-sandybridge
  export FC='ftn'
 elif [ $target = theia ]; then
- module load intel
+ module load intel/15.1.133 impi/5.0.3.048
  export FC='mpiifort'
 fi
 module list
