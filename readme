@@ -4,11 +4,12 @@
          BYTE-ADDRESSABLE I/O C PACKAGE
         Originally written by M.Iredell & J.Wang
 
- Code Management and Version targeted to improve performance by Hang Lei
+Code Management and Version targeted to improve performance by Hang Lei
 
 
 Location: URL:
 https://svnemc.ncep.noaa.gov/projects/nceplibs/nemsio/tags/v2.2.3
+git clone https://vlab.ncep.noaa.gov/code-review/NCEPLIBS-nemsio
 
 Directory contains:
 
