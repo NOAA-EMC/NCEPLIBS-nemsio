@@ -5,7 +5,7 @@ TEST=../
 INCMOD=../include/nemsio
 FC      =  ifort
 FOPTS  = -O -FR -I$(INCMOD)
-LIBS   =-L$(LIBDIR) -lnemsio -lbacio_4 -lw3emc_d  -lw3nco_d -L$(TEST) -lnemsio_v2.2.3
+LIBS   =-L$(LIBDIR) -lnemsio -lbacio_4 -lw3emc_d  -lw3nco_d -L$(TEST) -lnemsio_v2.2.4
 OBJS = read_nemsio.o
 SRCS = read_nemsio.f
 # *************************************************************************

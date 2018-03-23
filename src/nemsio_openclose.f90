@@ -2509,7 +2509,7 @@ contains
        endif
     endif
 !--- vcoord
-    if(present(vcoord)) then
+    if(present(vcoord).and. gfile%nmeta>=6) then
        if (size(vcoord) .ne. (gfile%dimz+1)*2*3 ) then
          if ( present(iret))  return
          call nemsio_stop
@@ -2518,7 +2518,7 @@ contains
        endif
     endif
 !--- lat
-    if(present(lat) ) then
+    if(present(lat).and. gfile%nmeta>=8 ) then
        if (size(lat).ne.gfile%fieldsize) then
          print *,'ERROR: size(lat)=',size(lat),' is not equal to ',gfile%fieldsize
          if ( present(iret))  return
@@ -2528,7 +2528,7 @@ contains
        endif
     endif
 !--- lon
-    if(present(lon) ) then
+    if(present(lon).and. gfile%nmeta>=8 ) then
        if (size(lon).ne.gfile%fieldsize) then
          print *,'ERROR: size(lon)=',size(lon),' is not equal to ',gfile%fieldsize
          if ( present(iret)) return
@@ -2538,7 +2538,7 @@ contains
        endif
     endif
 !--- dx
-    if(present(dx) ) then
+    if(present(dx).and. gfile%nmeta>=10 ) then
        if (size(dx).ne.gfile%fieldsize) then
          print *,'ERROR: size(dX)=',size(dx),' is not equal to ',gfile%fieldsize
          if ( present(iret))  return
@@ -2548,7 +2548,7 @@ contains
        endif
     endif
 !--- dy
-    if(present(dy) ) then
+    if(present(dy).and. gfile%nmeta>=10 ) then
        if (size(dy).ne.gfile%fieldsize) then
          print *,'ERROR: size(dy)=',size(dy),' is not equal to ',gfile%fieldsize
          if ( present(iret)) return
@@ -2558,7 +2558,7 @@ contains
        endif
     endif
 !--- Cpi
-    if(present(Cpi) ) then
+    if(present(Cpi).and. gfile%nmeta>=12 ) then
        if (gfile%ntrac+1.ne.size(Cpi)) then
          if ( present(iret)) return
          call nemsio_stop
@@ -2567,7 +2567,7 @@ contains
        endif
     endif
 !--- Ri
-    if(present(Ri) ) then 
+    if(present(Ri).and. gfile%nmeta>=12 ) then 
        if (gfile%ntrac+1.ne.size(Ri)) then
          if ( present(iret)) return
          call nemsio_stop

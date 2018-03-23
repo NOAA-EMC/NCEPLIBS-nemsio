@@ -9,7 +9,7 @@
 
 #set -x
 
-export VER="v2.2.3"
+export VER="v2.2.4"
 module purge
 
 mac=$(hostname -f)

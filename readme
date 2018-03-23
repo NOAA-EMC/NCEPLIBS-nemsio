@@ -8,7 +8,6 @@ Code Management and Version targeted to improve performance by Hang Lei
 
 
 Location: URL:
-https://svnemc.ncep.noaa.gov/projects/nceplibs/nemsio/tags/v2.2.3
 git clone https://vlab.ncep.noaa.gov/code-review/NCEPLIBS-nemsio
 
 Directory contains:
@@ -19,17 +18,17 @@ modulefiles
 
 ================================================
 -------------
-Adjust to NCO format for version v2.2.3
+Adjust to NCO format for version v2.2.4
 on WCOSS-Phase 1/2 and theia
 ----------------------------------------------
-lib/nemsio/v2.2.3
+lib/nemsio/v2.2.4
             |
             `--src
             `--modulefiles
             |     |
-            |     `--v2.2.3
+            |     `--v2.2.4
             `--unit_test
-            `--libnemsio_v2.2.3.a
+            `--libnemsio_v2.2.4.a
             |
             `--include
                   |
@@ -40,36 +39,42 @@ lib/nemsio/v2.2.3
 
 on WCOSS-Cray
 -----------------------------------------
-lib/nemsio/v2.2.3
+lib/nemsio/v2.2.4
       |
       `--src
       `--modulefiles
       |     |
-      |     `--v2.2.3
+      |     `--v2.2.4
       `--unit_test
       `--intel
       |     |
-      |     `--libnemsio_v2.2.3.a
+      |     `--libnemsio_v2.2.4.a
       |     |
       |     `--include
       |           |
-      |           `--nemsio_v2.2.3
+      |           `--nemsio_v2.2.4
       |                    |
       |                    `--nemsio_*.mod
       |
       `--cray
             |
-            `--libnemsio_v2.2.3.a
+            `--libnemsio_v2.2.4.a
             |
             `--include
                   |
-                  `--nemsio_v2.2.3
+                  `--nemsio_v2.2.4
                            |
                            `--NEMSIO_*.mod
 
 
 
 nceplibs/nemsio lib:
+
+==================================================
+V2.2.4 Hang Lei  since version 2.2.4, the nemsio library only update on VLAB.
+                 In this version, the improvement is made to read extra meta data in nemsio files.
+                 logical conditions is added in nemsio_openclose.f90 line 2512-2570.
+
 
 svn site:
 https://svnemc.ncep.noaa.gov/projects/nceplibs/nemsio/trunk
