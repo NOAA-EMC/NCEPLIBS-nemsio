@@ -1,0 +1,16 @@
+SHELL   =/bin/sh
+EXEC    =nemsio_read
+LIBDIR=/nwprod/lib
+TEST=../
+INCMOD=../include/nemsio
+FC      =  ifort
+FOPTS  = -O -FR -I$(INCMOD)
+LIBS   =-L$(LIBDIR) -lnemsio -lbacio_4 -lw3emc_d  -lw3nco_d -L$(TEST) -lnemsio_v2.2.3
+OBJS = read_nemsio.o
+SRCS = read_nemsio.f
+# *************************************************************************
+all: $(OBJS)
+
+$(OBJS): $(SRCS)
+	$(FC)  $(FOPTS) $(SRCS) -o $(EXEC) $(LIBS)
+

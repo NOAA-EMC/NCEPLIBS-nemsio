@@ -1,0 +1,7 @@
+The unit test is to comiple a code on wcoss or cray to read a typical nemsio file. The code is read_nemsio.f. The test data is testdataset. 
+
+When using cray machine, simply change makefile_read_nemsio_cray_intel to makefile, and make, an exe file nemsio_read is made to read data file. Cray machine may require bsub the job.
+
+When using wcoss phase 1 or 2, simply change makefile_read_nemsio_wcoss to makefile, and make, an exe file nemsio_read is made to read data file.  On wcoss, you can interactively submit the job as % ./nemsio_read testdataset.
+
+When job is done, the data in the datafile is printed out.

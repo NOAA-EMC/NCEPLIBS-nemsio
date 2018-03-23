@@ -1,3 +1,73 @@
+             README for NEMSIO
+
+            NOAA/NCEP/EMC NCWCP 2017
+         BYTE-ADDRESSABLE I/O C PACKAGE
+        Originally written by M.Iredell & J.Wang
+
+ Code Management and Version targeted to improve performance by Hang Lei
+
+
+Location: URL:
+https://svnemc.ncep.noaa.gov/projects/nceplibs/nemsio/tags/v2.2.3
+
+Directory contains:
+
+README                   - current file
+src
+modulefiles
+
+================================================
+-------------
+Adjust to NCO format for version v2.2.3
+on WCOSS-Phase 1/2 and theia
+----------------------------------------------
+lib/nemsio/v2.2.3
+            |
+            `--src
+            `--modulefiles
+            |     |
+            |     `--v2.2.3
+            `--unit_test
+            `--libnemsio_v2.2.3.a
+            |
+            `--include
+                  |
+                  `--nemsio_v2.0.2.3
+                           |
+                           `--nemsio_*.mod
+
+
+on WCOSS-Cray
+-----------------------------------------
+lib/nemsio/v2.2.3
+      |
+      `--src
+      `--modulefiles
+      |     |
+      |     `--v2.2.3
+      `--unit_test
+      `--intel
+      |     |
+      |     `--libnemsio_v2.2.3.a
+      |     |
+      |     `--include
+      |           |
+      |           `--nemsio_v2.2.3
+      |                    |
+      |                    `--nemsio_*.mod
+      |
+      `--cray
+            |
+            `--libnemsio_v2.2.3.a
+            |
+            `--include
+                  |
+                  `--nemsio_v2.2.3
+                           |
+                           `--NEMSIO_*.mod
+
+
+
 nceplibs/nemsio lib:
 
 svn site:
