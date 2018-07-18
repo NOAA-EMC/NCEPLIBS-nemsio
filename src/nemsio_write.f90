@@ -62,36 +62,23 @@ module nemsio_write
   public nemsio_writerec,nemsio_writerecv,nemsio_writerecw34,nemsio_writerecvw34
 !
 !---------------------------------------------------------
-! local data
-!
-  character(8) :: mygdatatype
-  integer mydimx,mydimy,mydimz,mynframe,myfieldsize,mytlmeta,myflunit
-  integer kens,ibs,nbits
-  logical do_byteswap
 !
 contains
 !
 !------------------------------------------------------------------------------
-  subroutine nemsio_getgfile(gfile,iret)
+  subroutine nemsio_getgfile(gfile,write_ldata,iret)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read nemsio data by record number into a 2D 32 bits array
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
     type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_write_localdata),intent(out)      :: write_ldata
     integer(nemsio_intkind),optional,intent(out)  :: iret
-    character(8) :: tmpgdatatype
+    integer ios
 !
     if(present(iret)) iret=-61
-    call nemsio_getfilehead(gfile,iret=iret,gdatatype=tmpgdatatype,dimx=mydimx,  &
-           dimy=mydimy,dimz=mydimz,nframe=mynframe,tlmeta=mytlmeta,              &
-           flunit=myflunit,do_byteswap=do_byteswap)
-    myfieldsize=(mydimx+2*mynframe)*(mydimy+2*mynframe)
-    mygdatatype=tmpgdatatype(1:4)
-    if(present(iret)) iret=0
-!
-!    print *,'in nemsio_getgfile,dimx=',mydimx,mydimy,mydimz,'mygdatatype=', &
-!       mygdatatype,'do_byteswap=',do_byteswap
-!
+    call nemsio_getfilehead(gfile,iret=ios,write_ldata=write_ldata)
+    if(present(iret)) iret=ios
   end subroutine nemsio_getgfile
 !
 !------------------------------------------------------------------------------
@@ -109,19 +96,20 @@ contains
     integer(nemsio_intkind),optional,intent(in)   :: precision
     integer :: ios
     real(nemsio_dblekind),allocatable            :: datatmp8(:)
+    type(nemsio_write_localdata) :: write_ldata
 !
 !------------------------------------------------------------
 ! write 4 byte rec
 !------------------------------------------------------------
 !
    if(present(iret)) iret=-62
-   call nemsio_getgfile(gfile,iret)
+   call nemsio_getgfile(gfile,write_ldata,iret)
 !
-   if ( mygdatatype .eq. 'bin4') then
+   if ( write_ldata%mygdatatype .eq. 'bin4') then
      call nemsio_writerecbin4d4(gfile,jrec,data,ios)
-   else if ( mygdatatype .eq. 'bin8') then
-     allocate(datatmp8(myfieldsize) )
-     datatmp8(1:myfieldsize)=data(1:myfieldsize)
+   else if ( write_ldata%mygdatatype .eq. 'bin8') then
+     allocate(datatmp8(write_ldata%myfieldsize) )
+     datatmp8(1:write_ldata%myfieldsize)=data(1:write_ldata%myfieldsize)
      call nemsio_writerecbin8d8(gfile,jrec,datatmp8,ios)
      deallocate(datatmp8)
    else
@@ -155,19 +143,20 @@ contains
     integer(nemsio_intkind),optional,intent(in)   :: precision
     integer ios
     real(nemsio_realkind),allocatable            :: datatmp4(:)
+    type(nemsio_write_localdata) :: write_ldata
 !------------------------------------------------------------
 ! write 4 byte rec
 !------------------------------------------------------------
 !
    if(present(iret)) iret=-62
-   call nemsio_getgfile(gfile,iret)
+   call nemsio_getgfile(gfile,write_ldata,iret)
 !
-   if ( mygdatatype .eq. 'bin4') then
-     allocate(datatmp4(myfieldsize) )
-     datatmp4(1:myfieldsize)=data(1:myfieldsize)
+   if ( write_ldata%mygdatatype .eq. 'bin4') then
+     allocate(datatmp4(write_ldata%myfieldsize) )
+     datatmp4(1:write_ldata%myfieldsize)=data(1:write_ldata%myfieldsize)
      call nemsio_writerecbin4d4(gfile,jrec,datatmp4,ios)
      deallocate(datatmp4)
-   else if ( mygdatatype .eq. 'bin8') then
+   else if ( write_ldata%mygdatatype .eq. 'bin8') then
      call nemsio_writerecbin8d8(gfile,jrec,data,ios)
    else
      call nemsio_writerecgrb8(gfile,jrec,data,ios,itr=itr,zhour=zhour,  &
@@ -203,19 +192,19 @@ contains
     integer(nemsio_intkind),optional,intent(in)   :: precision
     integer ios
     real(nemsio_dblekind),allocatable            :: datatmp8(:)
+    type(nemsio_write_localdata) :: write_ldata
 !------------------------------------------------------------
 ! read 4 byte rec
 !------------------------------------------------------------
 !
    if(present(iret))iret=-63
+   call nemsio_getgfile(gfile,write_ldata,iret)
 !
-   call nemsio_getgfile(gfile,iret)
-!
-   if ( mygdatatype .eq. 'bin4') then
+   if ( write_ldata%mygdatatype .eq. 'bin4') then
      call nemsio_writerecvbin4d4(gfile,name,levtyp,lev,data,ios)
-   else if ( mygdatatype .eq. 'bin8') then
-     allocate(datatmp8(myfieldsize) )
-     datatmp8(1:myfieldsize)=data(1:myfieldsize)
+   else if ( write_ldata%mygdatatype .eq. 'bin8') then
+     allocate(datatmp8(write_ldata%myfieldsize) )
+     datatmp8(1:write_ldata%myfieldsize)=data(1:write_ldata%myfieldsize)
      call nemsio_writerecvbin8d8(gfile,name,levtyp,lev,datatmp8,ios)
      deallocate(datatmp8)
    else
@@ -252,22 +241,21 @@ contains
     integer(nemsio_intkind),optional,intent(in)   :: precision
     integer ios
     real(nemsio_realkind),allocatable            :: datatmp4(:)
+    type(nemsio_write_localdata) :: write_ldata
 !------------------------------------------------------------
 ! write 8 byte rec
 !------------------------------------------------------------
 !
 !    print *,'in nemsio_write_recv8'
     if(present(iret)) iret=-63
+   call nemsio_getgfile(gfile,write_ldata,iret)
 !
-   call nemsio_getgfile(gfile,iret)
-!    print *,'in nemsio_write_recv8,aft nemsio_getgfile'
-!
-   if ( mygdatatype .eq. 'bin4') then
-     allocate(datatmp4(myfieldsize) )
-     datatmp4(1:myfieldsize)=data(1:myfieldsize)
+   if ( write_ldata%mygdatatype .eq. 'bin4') then
+     allocate(datatmp4(write_ldata%myfieldsize) )
+     datatmp4(1:write_ldata%myfieldsize)=data(1:write_ldata%myfieldsize)
      call nemsio_writerecvbin4d4(gfile,name,levtyp,lev,datatmp4,ios)
      deallocate(datatmp4)
-   else if ( mygdatatype .eq. 'bin8') then
+   else if ( write_ldata%mygdatatype .eq. 'bin8') then
      call nemsio_writerecvbin8d8(gfile,name,levtyp,lev,data,ios)
    else
      call nemsio_writerecvgrb8(gfile,name,levtyp,lev,data,ios,itr=itr,    &
@@ -302,20 +290,20 @@ contains
     integer(nemsio_intkind),optional,intent(in)   :: precision
     integer ios
     real(nemsio_dblekind),allocatable            :: datatmp8(:)
+    type(nemsio_write_localdata) :: write_ldata
 !
 !------------------------------------------------------------
 ! write 4 byte rec
 !------------------------------------------------------------
 !
     if(present(iret)) iret=-64
+   call nemsio_getgfile(gfile,write_ldata,iret)
 !
-   call nemsio_getgfile(gfile,iret)
-!
-   if ( mygdatatype .eq. 'bin4') then
+   if ( write_ldata%mygdatatype .eq. 'bin4') then
      call nemsio_writerecbin4d4(gfile,jrec,data,ios)
-   else if ( mygdatatype .eq. 'bin8') then
-     allocate(datatmp8(myfieldsize) )
-     datatmp8(1:myfieldsize)=data(1:myfieldsize)
+   else if ( write_ldata%mygdatatype .eq. 'bin8') then
+     allocate(datatmp8(write_ldata%myfieldsize) )
+     datatmp8(1:write_ldata%myfieldsize)=data(1:write_ldata%myfieldsize)
      call nemsio_writerecbin8d8(gfile,jrec,datatmp8,ios)
      deallocate(datatmp8)
    else
@@ -349,24 +337,24 @@ contains
     integer(nemsio_intkind),optional,intent(in)   :: precision
     real(nemsio_realkind),allocatable             :: datatmp4(:)
     integer ios
+    type(nemsio_write_localdata) :: write_ldata
 !------------------------------------------------------------
 ! write 4 byte rec
 !------------------------------------------------------------
 !
    if(present(iret)) iret=-64
+   call nemsio_getgfile(gfile,write_ldata,iret)
 !
-   call nemsio_getgfile(gfile,iret)
-!
-   if ( mygdatatype .eq. 'bin4') then
-     allocate(datatmp4(myfieldsize) )
-     datatmp4(1:myfieldsize)=data(1:myfieldsize)
+   if ( write_ldata%mygdatatype .eq. 'bin4') then
+     allocate(datatmp4(write_ldata%myfieldsize) )
+     datatmp4(1:write_ldata%myfieldsize)=data(1:write_ldata%myfieldsize)
      call nemsio_writerecbin4d4(gfile,jrec,datatmp4,ios)
      deallocate(datatmp4)
-   else if ( mygdatatype .eq. 'bin8') then
+   else if ( write_ldata%mygdatatype .eq. 'bin8') then
      call nemsio_writerecbin8d8(gfile,jrec,data,ios)
    else
-     allocate(datatmp4(myfieldsize))
-     datatmp4(1:myfieldsize)=data(1:myfieldsize)
+     allocate(datatmp4(write_ldata%myfieldsize))
+     datatmp4(1:write_ldata%myfieldsize)=data(1:write_ldata%myfieldsize)
      call nemsio_writerecgrb4w34(gfile,jrec,datatmp4,ios,itr=itr,zhour=zhour,    &
           precision=precision)
      deallocate(datatmp4)
@@ -401,19 +389,19 @@ contains
     integer(nemsio_intkind),optional,intent(in)   :: precision
     integer ios
     real(nemsio_dblekind),allocatable            :: datatmp8(:)
+    type(nemsio_write_localdata) :: write_ldata
 !------------------------------------------------------------
 ! read 4 byte rec
 !------------------------------------------------------------
 !
    if(present(iret)) iret=-65
+   call nemsio_getgfile(gfile,write_ldata,iret)
 !
-   call nemsio_getgfile(gfile,iret)
-!
-   if ( mygdatatype .eq. 'bin4') then
+   if ( write_ldata%mygdatatype .eq. 'bin4') then
      call nemsio_writerecvbin4d4(gfile,name,levtyp,lev,data,ios)
-   else if ( mygdatatype .eq. 'bin8') then
-     allocate(datatmp8(myfieldsize) )
-     datatmp8(1:myfieldsize)=data(1:myfieldsize)
+   else if ( write_ldata%mygdatatype .eq. 'bin8') then
+     allocate(datatmp8(write_ldata%myfieldsize) )
+     datatmp8(1:write_ldata%myfieldsize)=data(1:write_ldata%myfieldsize)
      call nemsio_writerecvbin8d8(gfile,name,levtyp,lev,datatmp8,ios)
      deallocate(datatmp8)
    else
@@ -450,24 +438,24 @@ contains
     integer(nemsio_intkind),optional,intent(in)   :: precision
     real(nemsio_realkind),allocatable             :: datatmp4(:)
     integer ios
+    type(nemsio_write_localdata) :: write_ldata
 !------------------------------------------------------------
 ! read 4 byte rec
 !------------------------------------------------------------
 !
     if(present(iret)) iret=-65
+   call nemsio_getgfile(gfile,write_ldata,iret)
 !
-   call nemsio_getgfile(gfile,iret)
-!
-   if ( mygdatatype .eq. 'bin4') then
-     allocate(datatmp4(myfieldsize) )
-     datatmp4(1:myfieldsize)=data(1:myfieldsize)
+   if ( write_ldata%mygdatatype .eq. 'bin4') then
+     allocate(datatmp4(write_ldata%myfieldsize) )
+     datatmp4(1:write_ldata%myfieldsize)=data(1:write_ldata%myfieldsize)
      call nemsio_writerecvbin4d4(gfile,name,levtyp,lev,datatmp4,ios)
      deallocate(datatmp4)
-   else if ( mygdatatype .eq. 'bin8') then
+   else if ( write_ldata%mygdatatype .eq. 'bin8') then
      call nemsio_writerecvbin8d8(gfile,name,levtyp,lev,data,ios)
    else
-     allocate(datatmp4(myfieldsize))
-     datatmp4(1:myfieldsize)=data(1:myfieldsize)
+     allocate(datatmp4(write_ldata%myfieldsize))
+     datatmp4(1:write_ldata%myfieldsize)=data(1:write_ldata%myfieldsize)
      call nemsio_writerecvgrb4w34(gfile,name,levtyp,lev,datatmp4,ios,itr=itr,    &
          zhour=zhour,precision=precision)
      deallocate(datatmp4)
@@ -499,19 +487,21 @@ contains
     real(nemsio_realkind),intent(in)              :: data(:)
     integer(nemsio_intkind),intent(out)           :: iret
     integer(nemsio_intkind8) :: iskip,iwrite,nwrite
+    type(nemsio_write_localdata) :: write_ldata
 !
     iret=-71
-    if(size(data)/=myfieldsize) then
+   call nemsio_getgfile(gfile,write_ldata,iret)
+    if(size(data)/=write_ldata%myfieldsize) then
       print *,'ERROR: input data size ',size(data),' is not match the data domain ', &
-        myfieldsize,'please check dimension and nframe'
+       write_ldata%myfieldsize,'please check dimension and nframe'
       return
     endif
-    iskip=mytlmeta+int(jrec-1,8)*int(nemsio_realkind*myfieldsize+8,8)
+    iskip=write_ldata%mytlmeta+int(jrec-1,8)*int(nemsio_realkind*write_ldata%myfieldsize+8,8)
     iwrite=int(nemsio_realkind,8)*int(size(data),8)
-    if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data)
+    if(write_ldata%do_byteswap) call byteswap(data,nemsio_realkind,size(data))
+    call bafrwritel(write_ldata%myflunit,iskip,iwrite,nwrite,data)
     if(nwrite.lt.iwrite) return
-    if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
+    if(write_ldata%do_byteswap) call byteswap(data,nemsio_realkind,size(data))
     iret=0
 
     return
@@ -530,21 +520,23 @@ contains
     integer(nemsio_intkind),intent(out)           :: iret
     integer :: jrec, ierr
     integer(nemsio_intkind8) :: iskip,iwrite,nwrite
+    type(nemsio_write_localdata) :: write_ldata
 
     iret=-73
+   call nemsio_getgfile(gfile,write_ldata,iret)
     call nemsio_searchrecv(gfile,jrec,name,levtyp,lev,ierr)
     if ( ierr .ne. 0) return
-    if(size(data)/=myfieldsize) then
+    if(size(data)/=write_ldata%myfieldsize) then
       print *,'ERROR: input data size ',size(data),' is not match the data domain ', &
-        myfieldsize,'please check dimension and nframe'
+       write_ldata%myfieldsize,'please check dimension and nframe'
       return
     endif
-    iskip=mytlmeta+int(jrec-1,8)*int(nemsio_realkind*myfieldsize+8,8)
+    iskip=write_ldata%mytlmeta+int(jrec-1,8)*int(nemsio_realkind*write_ldata%myfieldsize+8,8)
     iwrite=int(nemsio_realkind,8)*int(size(data),8)
-    if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data)
+    if(write_ldata%do_byteswap) call byteswap(data,nemsio_realkind,size(data))
+    call bafrwritel(write_ldata%myflunit,iskip,iwrite,nwrite,data)
     if(nwrite.lt.iwrite) return
-    if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
+    if(write_ldata%do_byteswap) call byteswap(data,nemsio_realkind,size(data))
     iret=0
 
     return
@@ -560,19 +552,21 @@ contains
     real(nemsio_dblekind),intent(in)              :: data(:)
     integer(nemsio_intkind),intent(out)           :: iret
     integer(nemsio_intkind8) :: iskip,iwrite,nwrite
+    type(nemsio_write_localdata) :: write_ldata
 
     iret=-72
-    if(size(data)/=myfieldsize) then
+   call nemsio_getgfile(gfile,write_ldata,iret)
+    if(size(data)/=write_ldata%myfieldsize) then
       print *,'ERROR: input data size ',size(data),' is not match the data domain ', &
-        myfieldsize,'please check dimension and nframe'
+        write_ldata%myfieldsize,'please check dimension and nframe'
       return
     endif
-    iskip=mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*myfieldsize+8,8)
+    iskip=write_ldata%mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*write_ldata%myfieldsize+8,8)
     iwrite=int(nemsio_dblekind,8)*int(size(data),8)
-    if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data)
+    if(write_ldata%do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
+    call bafrwritel(write_ldata%myflunit,iskip,iwrite,nwrite,data)
     if(nwrite.lt.iwrite) return
-    if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
+    if(write_ldata%do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
     iret=0
 
     return
@@ -591,20 +585,22 @@ contains
     integer(nemsio_intkind),intent(out)           :: iret
     integer :: jrec, ierr
     integer(nemsio_intkind8) :: iskip,iwrite,nwrite
+    type(nemsio_write_localdata) :: write_ldata
 
     iret=-74
-    if(size(data)/=myfieldsize) then
+   call nemsio_getgfile(gfile,write_ldata,iret)
+    if(size(data)/=write_ldata%myfieldsize) then
       print *,'ERROR: input data size ',size(data),' is not match the data domain ', &
-        myfieldsize,'please check dimension and nframe'
+       write_ldata%myfieldsize,'please check dimension and nframe'
       return
     endif
     call nemsio_searchrecv(gfile,jrec,name,levtyp,lev,ierr)
     if ( ierr .ne. 0) return
-    iskip=mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*myfieldsize+8,8)
+    iskip=write_ldata%mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*write_ldata%myfieldsize+8,8)
     iwrite=int(nemsio_dblekind,8)*int(size(data),8)
-    if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data)
-    if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
+    if(write_ldata%do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
+    call bafrwritel(write_ldata%myflunit,iskip,iwrite,nwrite,data)
+    if(write_ldata%do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
     if(nwrite.lt.iwrite) return
     iret=0
 
@@ -633,12 +629,15 @@ contains
     integer(nemsio_intkind)      :: N=nemsio_kpds_intfill
     integer(nemsio_intkind)      :: nc,i
     integer(nemsio_intkind)      :: ios,w34,ibms
+    type(nemsio_write_localdata) :: write_ldata
 !---
     real(nemsio_realkind)      :: mymax
+    integer                    :: kens,ibs,nbits
 !------------------------------------------------------------
 ! set up grib meta
 !------------------------------------------------------------
     if(present(iret)) iret=-75
+   call nemsio_getgfile(gfile,write_ldata,iret)
     w34=1
 !------------------------------------------------------------
 ! set up grib meta lbms
@@ -666,7 +665,7 @@ contains
     grbmeta%lbms=.true.
     where(abs(data)>=nemsio_undef_grb) grbmeta%lbms=.false.
     mymax=minval(data)
-    do i=1,myfieldsize
+    do i=1,write_ldata%myfieldsize
      if(abs(data(i))<nemsio_undef_grb) then
        if(data(i) .gt.mymax) mymax=data(i)
      endif
@@ -684,7 +683,7 @@ contains
 !call putgben instead of getgb for oytgben has maxbits set to
 !24, GRADS has issues with number bits >24
     kens=0;ibs=0;nbits=0
-    call putgben(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+    call putgben(write_ldata%myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
       kens,ibs,nbits,grbmeta%lbms,data,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
@@ -718,11 +717,14 @@ contains
     integer(nemsio_intkind)      :: N=nemsio_kpds_intfill
     integer(nemsio_intkind)      :: nc,i,nc1
     integer(nemsio_intkind)      :: ios,ibms
-    real(nemsio_dblekind)         :: mymax
+    real(nemsio_dblekind)        :: mymax
+    integer                      :: kens,ibs,nbits
+    type(nemsio_write_localdata) :: write_ldata
 !------------------------------------------------------------
 ! set up grib meta 
 !------------------------------------------------------------
     if(present(iret)) iret=-77
+   call nemsio_getgfile(gfile,write_ldata,iret)
 !------------------------------------------------------------
 ! set up grib meta ibms
 !------------------------------------------------------------
@@ -757,7 +759,7 @@ contains
     grbmeta%lbms=.true.
     where(abs(data8)>=nemsio_undef_grb) grbmeta%lbms=.false.
     mymax=minval(data8)
-    do i=1,myfieldsize
+    do i=1,write_ldata%myfieldsize
      if(abs(data8(i))<nemsio_undef_grb) then
         if(data8(i) .gt.mymax) mymax=data8(i)
      endif
@@ -778,7 +780,7 @@ contains
 !call putgben instead of getgb for oytgben has maxbits set to
 !24, GRADS has issues with number bits >24
     kens=0;ibs=0;nbits=0
-    call putgben(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+    call putgben(write_ldata%myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
       kens,ibs,nbits,grbmeta%lbms,data8,ios)
 !    write(0,*)'in writerecgrb4,after putgb,iret=',ios,'jpds=',grbmeta%jpds(1:25), &
 !      'gds=',grbmeta%jgds(1:25),'data=',maxval(data8),minval(data8)
@@ -813,12 +815,15 @@ contains
     integer(nemsio_intkind)      :: N=nemsio_kpds_intfill
     integer(nemsio_intkind)      :: nc,i
     integer(nemsio_intkind)      :: ios,ibms
+    type(nemsio_write_localdata) :: write_ldata
 !---
     real(nemsio_dblekind)      :: mymax
+    integer                    :: kens,ibs,nbits
 !------------------------------------------------------------
 ! set up grib meta 
 !------------------------------------------------------------
     if(present(iret)) iret=-77
+   call nemsio_getgfile(gfile,write_ldata,iret)
 !------------------------------------------------------------
 ! set up grib meta lbms
 !------------------------------------------------------------
@@ -844,7 +849,7 @@ contains
     grbmeta%lbms=.true.
     where(abs(data8)>=nemsio_undef_grb) grbmeta%lbms=.false.
     mymax=minval(data8)
-    do i=1,myfieldsize
+    do i=1,write_ldata%myfieldsize
      if(abs(data8(i))<nemsio_undef_grb) then
         if(data8(i) .gt.mymax) mymax=data8(i)
      endif
@@ -862,7 +867,7 @@ contains
 !call putgben instead of getgb for oytgben has maxbits set to
 !24, GRADS has issues with number bits >24
     kens=0;ibs=0;nbits=0
-    call putgben(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+    call putgben(write_ldata%myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
       kens,ibs,nbits,grbmeta%lbms,data8,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
@@ -898,10 +903,13 @@ contains
     integer(nemsio_intkind)      :: nc,i
     integer(nemsio_intkind)      :: ios,w34,ibms
     real(nemsio_realkind)        :: mymax
+    integer                      :: kens,ibs,nbits
+    type(nemsio_write_localdata) :: write_ldata
 !------------------------------------------------------------
 ! set up grib meta
 !------------------------------------------------------------
     if(present(iret)) iret=-76
+   call nemsio_getgfile(gfile,write_ldata,iret)
 !------------------------------------------------------------
 ! set up grib meta lbms
 !------------------------------------------------------------
@@ -930,7 +938,7 @@ contains
     grbmeta%lbms=.true.
     where(abs(data)>=nemsio_undef_grb) grbmeta%lbms=.false.
     mymax=minval(data)
-    do i=1,myfieldsize
+    do i=1,write_ldata%myfieldsize
      if(abs(data(i))<nemsio_undef_grb) then
         if(data(i) .gt.mymax) mymax=data(i)
      endif
@@ -948,7 +956,7 @@ contains
 !call putgben instead of getgb for putgben has maxbits set to
 !24, GRADS has issues with number bits >24
     kens=0;ibs=0;nbits=0
-    call putgben(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+    call putgben(write_ldata%myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
       kens,ibs,nbits,grbmeta%lbms,data,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
@@ -985,10 +993,13 @@ contains
     integer(nemsio_intkind)      :: nc,i
     integer(nemsio_intkind)      :: ios,ibms
     real(nemsio_dblekind)        :: mymax
+    integer                      :: kens,ibs,nbits
+    type(nemsio_write_localdata) :: write_ldata
 !------------------------------------------------------------
 ! set up grib meta 
 !------------------------------------------------------------
     if(present(iret)) iret=-78
+    call nemsio_getgfile(gfile,write_ldata,iret)
 !------------------------------------------------------------
 ! set up grib meta lbms
 !------------------------------------------------------------
@@ -1019,7 +1030,7 @@ contains
     grbmeta%lbms=.true.
     where(abs(data8)>=nemsio_undef_grb) grbmeta%lbms=.false.
     mymax=minval(data8)
-    do i=1,myfieldsize
+    do i=1,write_ldata%myfieldsize
      if(abs(data8(i))<nemsio_undef_grb) then
        if(data8(i) .gt.mymax) mymax=data8(i)
      endif
@@ -1037,7 +1048,7 @@ contains
 !call putgben instead of getgb for oytgben has maxbits set to
 !24, GRADS has issues with number bits >24
     kens=0;ibs=0;nbits=0
-    call putgben(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+    call putgben(write_ldata%myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
       kens,ibs,nbits,grbmeta%lbms,data8,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
@@ -1073,10 +1084,13 @@ contains
     integer(nemsio_intkind)      :: nc,i
     integer(nemsio_intkind)      :: ios,ibms
     real(nemsio_dblekind)        :: mymax
+    integer                      :: kens,ibs,nbits
+    type(nemsio_write_localdata) :: write_ldata
 !------------------------------------------------------------
 ! set up grib meta 
 !------------------------------------------------------------
     if(present(iret)) iret=-78
+    call nemsio_getgfile(gfile,write_ldata,iret)
 !------------------------------------------------------------
 ! set up grib meta lbms
 !------------------------------------------------------------
@@ -1104,7 +1118,7 @@ contains
     grbmeta%lbms=.true.
     where(abs(data8)>=nemsio_undef_grb) grbmeta%lbms=.false.
     mymax=minval(data8)
-    do i=1,myfieldsize
+    do i=1,write_ldata%myfieldsize
      if(abs(data8(i))<nemsio_undef_grb) then
         if(data8(i) .gt.mymax) mymax=data8(i)
      endif
@@ -1122,7 +1136,7 @@ contains
 !call putgben instead of getgb for oytgben has maxbits set to
 !24, GRADS has issues with number bits >24
     kens=0;ibs=0;nbits=0
-    call putgben(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+    call putgben(write_ldata%myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
       kens,ibs,nbits,grbmeta%lbms,data8,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then

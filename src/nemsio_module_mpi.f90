@@ -685,7 +685,7 @@ contains
     type(nemsio_gfile),intent(inout)     :: gfile
     integer(nemsio_intkind),intent(out)  :: iret
 !local variables
-    integer(nemsio_intkind)      :: ios,nmeta,tlmeta4
+    integer(nemsio_intkind)      :: ios,tlmeta4
     integer(nemsio_intkind)     :: iread
     integer (kind=mpi_offset_kind) ::idisp
     integer :: status(mpi_status_size)
@@ -791,14 +791,12 @@ contains
       idisp=gfile%tlmeta+4
       iread=len(gfile%recname)*size(gfile%recname)
       call mpi_file_read_at(gfile%fh,idisp,gfile%recname,iread,MPI_CHARACTER,status,ios)
-      nmeta=nmeta-1
       gfile%tlmeta=gfile%tlmeta+iread+8
     endif
 !meta4:reclevtyp
     if(nummeta>3) then
       idisp=gfile%tlmeta+4
       call mpi_file_read_at(gfile%fh,idisp,gfile%reclevtyp,iread,MPI_CHARACTER,status,ios)
-      nmeta=nmeta-1
       gfile%tlmeta=gfile%tlmeta+iread+8
     endif
 !meta5:reclev
@@ -807,7 +805,6 @@ contains
       iread=size(gfile%reclev)
       call mpi_file_read_at(gfile%fh,idisp,gfile%reclev,iread,MPI_INTEGER,status,ios)
       if(gfile%do_byteswap) call byteswap(gfile%reclev,nemsio_intkind,size(gfile%reclev))
-      nmeta=nmeta-1
       gfile%tlmeta=gfile%tlmeta+kind(gfile%reclev)*iread+8
     endif
 !meta6:vcoord
@@ -816,7 +813,6 @@ contains
       iread=size(gfile%vcoord)
       call mpi_file_read_at(gfile%fh,idisp,gfile%vcoord,iread,MPI_REAL,status,ios)
       if(gfile%do_byteswap) call byteswap(gfile%vcoord,nemsio_realkind,size(gfile%vcoord))
-      nmeta=nmeta-1
       gfile%tlmeta=gfile%tlmeta+kind(gfile%vcoord)*iread+8
     endif
 !meta7:lat
@@ -825,7 +821,6 @@ contains
       iread=size(gfile%lat)
       call mpi_file_read_at(gfile%fh,idisp,gfile%lat,iread,MPI_REAL,status,ios)
       if(gfile%do_byteswap) call byteswap(gfile%lat,nemsio_realkind,size(gfile%lat))
-      nmeta=nmeta-1
       gfile%tlmeta=gfile%tlmeta+kind(gfile%lat)*iread+8
     endif
 !meta8:lon
@@ -833,7 +828,6 @@ contains
       idisp=gfile%tlmeta+4
       call mpi_file_read_at(gfile%fh,idisp,gfile%lon,iread,MPI_REAL,status,ios)
       if(gfile%do_byteswap) call byteswap(gfile%lon,nemsio_realkind,size(gfile%lon))
-      nmeta=nmeta-1
       gfile%tlmeta=gfile%tlmeta+kind(gfile%lon)*iread+8
     endif
 !meta9:dx
@@ -841,7 +835,6 @@ contains
       idisp=gfile%tlmeta+4
       call mpi_file_read_at(gfile%fh,idisp,gfile%dx,iread,MPI_REAL,status,ios)
       if(gfile%do_byteswap) call byteswap(gfile%dx,nemsio_realkind,size(gfile%dx))
-      nmeta=nmeta-1
       gfile%tlmeta=gfile%tlmeta+kind(gfile%dx)*iread+8
     endif
 !meta10:dy
@@ -849,7 +842,6 @@ contains
       idisp=gfile%tlmeta+4
       call mpi_file_read_at(gfile%fh,idisp,gfile%dy,iread,MPI_REAL,status,ios)
       if(gfile%do_byteswap) call byteswap(gfile%dy,nemsio_realkind,size(gfile%dy))
-      nmeta=nmeta-1
       gfile%tlmeta=gfile%tlmeta+kind(gfile%dy)*iread+8
     endif
 !meta11:cpi
@@ -858,7 +850,6 @@ contains
       iread=size(gfile%cpi)
       call mpi_file_read_at(gfile%fh,idisp,gfile%cpi,iread,MPI_REAL,status,ios)
       if(gfile%do_byteswap) call byteswap(gfile%cpi,nemsio_realkind,size(gfile%cpi))
-      nmeta=nmeta-1
       gfile%tlmeta=gfile%tlmeta+kind(gfile%cpi)*iread+8
     endif
 !Ri
@@ -866,7 +857,6 @@ contains
       idisp=gfile%tlmeta+4
       call mpi_file_read_at(gfile%fh,idisp,gfile%ri,iread,MPI_REAL,status,ios)
       if(gfile%do_byteswap) call byteswap(gfile%ri,nemsio_realkind,size(gfile%ri))
-      nmeta=nmeta-1
       gfile%tlmeta=gfile%tlmeta+kind(gfile%ri)*iread+8
     endif
 !
