@@ -1,0 +1,16 @@
+SHELL   =/bin/sh
+EXEC    =nemsio_read
+NEMSIODIR=/scratch4/NCEPDEV/global/save/Hang.Lei/library/nemsio_v2.2.4
+NETCDF=/apps/netcdf/4.3.0-intel
+INCMOD=$(NEMSIODIR)/include/nemsio_v2.2.4
+FC      =  ifort
+FOPTS  = -O -FR -I$(INCMOD)
+LIBS   =-L$(NEMSIODIR) -lnemsio_v2.2.4 -L/scratch3/NCEPDEV/nwprod/lib/bacio/v2.0.1 -lbacio_v2.0.1_4 -L/scratch3/NCEPDEV/nwprod/lib/w3nco/v2.0.6 -lw3nco_v2.0.6_d -L$(NETCDF)/lib -lnetcdff -lnetcdf
+OBJS = read_nemsio.o
+SRCS = read_nemsio.f
+# *************************************************************************
+all: $(OBJS)
+
+$(OBJS): $(SRCS)
+	$(FC)  $(FOPTS) $(SRCS) -o $(EXEC) $(LIBS)
+
