@@ -18,7 +18,7 @@ dbg_build: override MPIFFLAGS += $(DEBUG)
 dbg_build: $(LIB)
 
 %.o: %.f90
-	$(MPIFC) -c $(MPIFFLAGS) $(MPIFFLAGSDEFS) $<
+	$(MPIFC) -c $(FREEFORM) $(MPIFFLAGS) $(FFLAGSDEFS) $<
 
 message: $(MSGSRC)
 	$(CC) -c $(firstword $(MSGSRC))
