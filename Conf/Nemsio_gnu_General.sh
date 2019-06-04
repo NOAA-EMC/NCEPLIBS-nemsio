@@ -1,9 +1,12 @@
 # *** manually set environments (for gnu compiler) of nemsio ***
 
-# !!! module environment (*THEIA*) !!!
- module load gcc/4.9.1
- module use -a /apps/modules/modulefamilies/intel
- module load impi/5.1.2.150
+ : ${USERMODE:=false}  # user mode (USERMODE) is closed by default
+                       # set env var USERMODE to "true" to active it
+ ${USERMODE} && {
+    echo "Environment set by user"
+    echo "Use default GCC compiler for compatible to w3emc"
+    source /apps/intel/impi/5.1.2.150/bin64/mpivars.sh
+ }
 
  ANCHORDIR=..
  export COMP=gnu/impi
@@ -18,7 +21,7 @@
  export OMPCC="$CC -fopenmp"
  export OMPFC="$FC -fopenmp"
  export MPICC=mpigcc
- export MPIFC=mpigfortran
+ export MPIFC=mpif90
 
  export DEBUG="-g -O0"
  export CFLAGS="-O3 -fPIC"
