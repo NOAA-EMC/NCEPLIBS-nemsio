@@ -10,7 +10,7 @@
 
  ANCHORDIR=..
  export COMP=gnu/impi
- export NEMSIO_VER=v2.2.4
+ export NEMSIO_VER=v2.2.5
  export NEMSIO_SRC=
  export NEMSIO_INC=$ANCHORDIR/${COMP#*/}/include/nemsio_${NEMSIO_VER}
  export NEMSIO_LIB=$ANCHORDIR/${COMP#*/}/libnemsio_${NEMSIO_VER}.a

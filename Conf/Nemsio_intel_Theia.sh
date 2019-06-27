@@ -5,7 +5,7 @@
  module load EnvVars/1.0.2
  module load ips/18.0.1.163
  module load impi/2018.0.1
- module load dev/nemsio/2.2.4
+ module load dev/nemsio/2.2.5
 
  export CC=icc
  export FC=ifort
