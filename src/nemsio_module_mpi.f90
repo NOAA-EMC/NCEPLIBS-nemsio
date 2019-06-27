@@ -408,7 +408,13 @@ contains
 !------------------------------------------------------------
     call chk_endianc(machine_endian)
     if(trim(machine_endian)=='mixed_endian') then
-      call nemsio_stop('You are in mixed endian computer,stop!!!')
+       print *, 'You are in mixed endian computer!!!'
+       if ( present(iret))  then
+         iret=-1
+         return
+       else
+         call nemsio_stop
+       endif
     endif
 !
     if(present(iret)) iret=0
@@ -1219,7 +1225,12 @@ contains
     endif
     if ( gfile%idate(1).eq.nemsio_intfill) then
       print *,'idate=',gfile%idate,' WRONG: please provide idate(1:7)(yyyy/mm/dd/hh/min/secn/secd)!!!'
-      call nemsio_stop()
+!         if ( present(iret)) then
+         iret=-1
+         return
+!         else
+!         call nemsio_stop
+!         endif
     endif
 !
     if ( gfile%gtype(1:6).eq."NEMSIO" ) then

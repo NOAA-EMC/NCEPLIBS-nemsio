@@ -733,8 +733,10 @@ contains
       if(trim(machine_endian)=='little_endian') gfile%do_byteswap=.false.
       call bafrreadl(gfile%flunit,iskip,iread,nread,meta1)
       if(nread<iread) then
-        print *,'WARNING: the file probably is in mixed endian, the program will STOP!'
-        call nemsio_stop()
+        print *,'nread',nread, '< iread',iread     
+        print *,'WARNING: the file probably is in mixed endian, or empty files'
+        iret=-1
+         return
       endif
 !
     elseif(.not.lreadcrt) then
@@ -1416,7 +1418,12 @@ contains
     endif
     if ( gfile%idate(1).eq.nemsio_intfill) then
       print *,'idate=',gfile%idate,' ERROR: please provide idate(1:7)(yyyy/mm/dd/hh/min/secn/secd)!!!'
-      call nemsio_stop()
+!       if (present(iret)) then
+       iret=-1
+       return
+!       else
+!       call nemsio_stop
+!       endif
     endif
 !
     if ( gfile%gtype(1:6).eq."NEMSIO" ) then
@@ -3232,7 +3239,12 @@ contains
     if(gfile%dimx.eq.nemsio_intfill.or.gfile%dimy.eq.nemsio_intfill.or. &
        gfile%dimz.eq.nemsio_intfill.or.gfile%idate(1).eq.nemsio_intfill) then
        print *,'ERROR: please provide dimensions!'
-       call nemsio_stop
+!       if (present(iret)) then
+       iret=-1
+       return
+!       else
+!       call nemsio_stop
+!       endif
     endif
     if(gfile%nframe.eq.nemsio_intfill) gfile%nframe=0
     gfile%fieldsize=(gfile%dimx+2*gfile%nframe)*(gfile%dimy+2*gfile%nframe)

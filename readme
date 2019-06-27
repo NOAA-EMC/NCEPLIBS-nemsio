@@ -18,17 +18,17 @@ modulefiles
 
 ================================================
 -------------
-Adjust to NCO format for version v2.2.4
+Adjust to NCO format for version v2.2.5
 on WCOSS-Phase 1/2 and theia
 ----------------------------------------------
-lib/nemsio/v2.2.4
+lib/nemsio/v2.2.5
             |
             `--src
             `--modulefiles
             |     |
-            |     `--v2.2.4
+            |     `--v2.2.5
             `--unit_test
-            `--libnemsio_v2.2.4.a
+            `--libnemsio_v2.2.5.a
             |
             `--include
                   |
@@ -39,30 +39,30 @@ lib/nemsio/v2.2.4
 
 on WCOSS-Cray
 -----------------------------------------
-lib/nemsio/v2.2.4
+lib/nemsio/v2.2.5
       |
       `--src
       `--modulefiles
       |     |
-      |     `--v2.2.4
+      |     `--v2.2.5
       `--unit_test
       `--intel
       |     |
-      |     `--libnemsio_v2.2.4.a
+      |     `--libnemsio_v2.2.5.a
       |     |
       |     `--include
       |           |
-      |           `--nemsio_v2.2.4
+      |           `--nemsio_v2.2.5
       |                    |
       |                    `--nemsio_*.mod
       |
       `--cray
             |
-            `--libnemsio_v2.2.4.a
+            `--libnemsio_v2.2.5.a
             |
             `--include
                   |
-                  `--nemsio_v2.2.4
+                  `--nemsio_v2.2.5
                            |
                            `--NEMSIO_*.mod
 
@@ -71,7 +71,7 @@ lib/nemsio/v2.2.4
 nceplibs/nemsio lib:
 
 ==================================================
-V2.2.4 Hang Lei  since version 2.2.4, the nemsio library only update on VLAB.
+V2.2.5 Hang Lei  since version 2.2.5, the nemsio library only update on VLAB.
                  In this version, the improvement is made to read extra meta data in nemsio files.
                  logical conditions is added in nemsio_openclose.f90 line 2512-2570.
 

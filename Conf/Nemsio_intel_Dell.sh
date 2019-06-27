@@ -5,7 +5,7 @@
  module load impi/18.0.1
 
  module load nemsio/2.2.3
- new_ver=v2.2.4
+ new_ver=v2.2.5
  reset_version nemsio $new_ver
 
  export CC=icc
