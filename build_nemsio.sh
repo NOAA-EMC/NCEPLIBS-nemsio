@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
  : ${THISDIR:=$(dirname $(readlink -f -n ${BASH_SOURCE[0]}))}
  CDIR=$PWD; cd $THISDIR
@@ -11,9 +11,11 @@
  if [[ ${sys} == "intel_general" ]]; then
    sys6=${sys:6}
    source ./Conf/Nemsio_${sys:0:5}_${sys6^}.sh
+   rinst=false
  elif [[ ${sys} == "gnu_general" ]]; then
    sys4=${sys:4}
    source ./Conf/Nemsio_${sys:0:3}_${sys4^}.sh
+   rinst=false
  else
    source ./Conf/Nemsio_intel_${sys^}.sh
  fi
@@ -21,9 +23,14 @@
    echo "??? NEMSIO: compilers not set." >&2
    exit 1
  }
- [[ -z $NEMSIO_VER || -z $NEMSIO_LIB ]] && {
-   echo "??? NEMSIO: module/environment not set." >&2
-   exit 1
+ [[ -z ${NEMSIO_VER+x} || -z ${NEMSIO_LIB+x} ]] && {
+   [[ -z ${libver+x} || -z ${libver} ]] && {
+     echo "??? NEMSIO: \"libver\" not set." >&2
+     exit
+   }
+   NEMSIO_INC=${libver}
+   NEMSIO_LIB=lib${libver}.a
+   NEMSIO_VER=v${libver##*_v}
  }
 
 set -x
@@ -34,7 +41,6 @@ set -x
  cd src
 #################
 
- $skip || {
 #-------------------------------------------------------------------
 # Start building libraries
 #
@@ -50,7 +56,6 @@ set -x
          || make build LIB=$nemsioLib &> $nemsioInfo
    make message MSGSRC="$(gen_cfunction $nemsioInfo OneLine LibInfo)" \
                 LIB=$nemsioLib
- }
 
  $inst && {
 #
@@ -58,24 +63,28 @@ set -x
 #
    $local && {
      instloc=..
-     LIB_DIR=$instloc
+     LIB_DIR=$instloc/lib
      INCP_DIR=$instloc/include
+     [ -d $LIB_DIR ] || { mkdir -p $LIB_DIR; }
      [ -d $INCP_DIR ] || { mkdir -p $INCP_DIR; }
      SRC_DIR=
    } || {
-     [[ $instloc == --- ]] && {
+     $rinst && {
        LIB_DIR=$(dirname $NEMSIO_LIB)
        INCP_DIR=$(dirname $NEMSIO_INC)
+       [ -d $NEMSIO_INC ] && { rm -rf $NEMSIO_INC; } \
+                          || { mkdir -p $INCP_DIR; }
        SRC_DIR=$NEMSIO_SRC
      } || {
-       LIB_DIR=$instloc
+       LIB_DIR=$instloc/lib
        INCP_DIR=$instloc/include
-       SRC_DIR=$instloc/src
        [[ $instloc == .. ]] && SRC_DIR=
+       NEMSIO_INC=$INCP_DIR/$NEMSIO_INC
+       [ -d $NEMSIO_INC ] && { rm -rf $NEMSIO_INC; } \
+                          || { mkdir -p $INCP_DIR; }
+       SRC_DIR=$instloc/src
      }
      [ -d $LIB_DIR ] || mkdir -p $LIB_DIR
-     [ -d $NEMSIO_INC ] && { rm -rf $NEMSIO_INC; } \
-                        || { mkdir -p $INCP_DIR; }
      [ -z $SRC_DIR ] || { [ -d $SRC_DIR ] || mkdir -p $SRC_DIR; }
    }
 

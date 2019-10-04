@@ -5,21 +5,9 @@
  ${USERMODE} && {
     echo "Environment set by user"
 # On theia/cray, user can load environment
-#   module load intel/18.0.1.163
-#   module load impi/2018.0.1
-# Or set environment on specific platform
-    intel_version=2018.1.163
-    intel_topdir=/apps/intel/compilers_and_libraries_$intel_version
-    source $intel_topdir/linux/bin/compilervars.sh intel64
-    source $intel_topdir/linux/mpi/bin64/mpivars.sh
+    module load intel/18.0.1.163
+    module load impi/2018.0.1
  }
-
- ANCHORDIR=..
- export COMP=ips/impi
- export NEMSIO_VER=v2.2.5
- export NEMSIO_SRC=
- export NEMSIO_INC=$ANCHORDIR/${COMP#*/}/include/nemsio_${NEMSIO_VER}
- export NEMSIO_LIB=$ANCHORDIR/${COMP#*/}/libnemsio_${NEMSIO_VER}.a
 
  export CC=icc
  export FC=ifort
