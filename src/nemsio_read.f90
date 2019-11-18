@@ -78,6 +78,7 @@ contains
     integer ios
 !
     if(present(iret)) iret= -31
+    if(present(iret)) iret=0
 !
     call nemsio_getfilehead(gfile,iret=ios,read_ldata=read_ldata)
     if(ios/=0) then

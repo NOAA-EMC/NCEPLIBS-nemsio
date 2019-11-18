@@ -777,7 +777,6 @@ contains
     gfile%read_ldata%do_byteswap=gfile%do_byteswap
     gfile%read_ldata%myflunit=gfile%flunit
     gfile%read_ldata%mygfname=trim(gfile%gfname)
-    gfile%read_ldata%mytlmeta=gfile%tlmeta
     if(trim(gfile%read_ldata%mygdatatype)=='grib') then
       gfile%read_ldata%mymbuf=256*1024
       gfile%read_ldata%mynnum=0
@@ -1275,6 +1274,7 @@ contains
         gfile%tlmeta=gfile%tlmeta+nread
       enddo
     endif
+    gfile%read_ldata%mytlmeta=gfile%tlmeta
 !
 !end if extrameta
    endif
