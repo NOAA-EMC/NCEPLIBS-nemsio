@@ -1,16 +1,12 @@
 # *** manually set environments (for gnu compiler) of nemsio ***
 
-# !!! module environment (*THEIA*) !!!
- module load gcc/4.9.1
- module use -a /apps/modules/modulefamilies/intel
- module load impi/5.1.2.150
-
- ANCHORDIR=..
- export COMP=gnu/impi
- export NEMSIO_VER=v2.2.4
- export NEMSIO_SRC=
- export NEMSIO_INC=$ANCHORDIR/${COMP#*/}/include/nemsio_${NEMSIO_VER}
- export NEMSIO_LIB=$ANCHORDIR/${COMP#*/}/libnemsio_${NEMSIO_VER}.a
+ : ${USERMODE:=false}  # user mode (USERMODE) is closed by default
+                       # set env var USERMODE to "true" to active it
+ ${USERMODE} && {
+    echo "Environment set by user"
+    echo "Use default GCC compiler for compatible to w3emc"
+    source /apps/intel/impi/5.1.2.150/bin64/mpivars.sh
+ }
 
  export CC=gcc
  export FC=gfortran
@@ -18,16 +14,16 @@
  export OMPCC="$CC -fopenmp"
  export OMPFC="$FC -fopenmp"
  export MPICC=mpigcc
- export MPIFC=mpigfortran
+ export MPIFC=mpif90
 
- export DEBUG="-g -O0"
- export CFLAGS="-O3 -fPIC"
- export FFLAGS="-O3 -fno-range-check -fPIC"
+ export DEBUG="-g -fbacktrace -O0"
+ export CFLAGS="-g -O3 -fPIC"
+ export FFLAGS="-g -fbacktrace -O3 -fno-range-check -fPIC"
  export FREEFORM="-ffree-form"
  export FPPCPP="-cpp"
  export CPPFLAGS="-P -traditional-cpp"
- export MPICFLAGS="-O3 -fPIC"
- export MPIFFLAGS="-O3 -fPIC"
+ export MPICFLAGS="-g -O3 -fPIC"
+ export MPIFFLAGS="-g -fbacktrace -O3 -fno-range-check -fPIC"
  export MODPATH="-J"
  export I4R4=""
  export I4R8="-fdefault-real-8"

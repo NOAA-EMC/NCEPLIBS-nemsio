@@ -62,24 +62,34 @@ module nemsio_read
   public nemsio_readrec,nemsio_readrecv,nemsio_readrecw34,nemsio_readrecvw34
 !
 !---------------------------------------------------------
+! local data
+!
+  character(8) :: mygdatatype
+  character(255) :: mygfname
+  integer mydimx,mydimy,mydimz,mynframe,myfieldsize,mytlmeta,myflunit
+  character(255),save :: mygfnamep=''
+  integer,save :: mymbuf,mynnum,mynlen,mymnum
+  character,allocatable,save  :: mycbuf(:)
+  logical do_byteswap
 !
 contains
 !
 !------------------------------------------------------------------------------
-!
-  subroutine nemsio_getgfile(gfile,read_ldata,iret)
+  subroutine nemsio_getgfile(gfile,iret)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read nemsio data by record number into a 2D 32 bits array
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
     type(nemsio_gfile),intent(in)                 :: gfile
-    type(nemsio_read_localdata),intent(out)       :: read_ldata
     integer(nemsio_intkind),optional,intent(out)  :: iret
     integer ios
-!
+    character(8) :: tmpgdatatype
+! 
     if(present(iret)) iret= -31
 !
-    call nemsio_getfilehead(gfile,iret=ios,read_ldata=read_ldata)
+    call nemsio_getfilehead(gfile,iret=ios,gdatatype=tmpgdatatype,dimx=mydimx,   &
+           dimy=mydimy,dimz=mydimz,nframe=mynframe,tlmeta=mytlmeta,              &
+           flunit=myflunit,gfname=mygfname,do_byteswap=do_byteswap )
     if(ios/=0) then
        if(present(iret)) then
          iret=ios
@@ -89,8 +99,26 @@ contains
          stop
        endif
     endif
+  
+    myfieldsize=(mydimx+2*mynframe)*(mydimy+2*mynframe)
+    mygdatatype=tmpgdatatype(1:4)
+    if(trim(mygfnamep)/=trim(mygfname)) then 
+       mygfnamep=mygfname
+       if(trim(mygdatatype)=='grib') then
+         mymbuf=256*1024
+         mynnum=0
+         mynlen=0
+         mymnum=-1
+         if(allocated(mycbuf)) deallocate(mycbuf)
+         allocate(mycbuf(mymbuf))
+       endif
+     endif
+!     print *,'in read,mygdatatype=',mygdatatype,'do_byteswap=',do_byteswap
+!
+     if(present(iret)) iret=0
 !
   end subroutine nemsio_getgfile
+!------------------------------------------------------------------------------
 !
 !------------------------------------------------------------------------------
   subroutine nemsio_readrec4(gfile,jrec,data,nframe,iret)
@@ -106,26 +134,25 @@ contains
     real(nemsio_realkind),allocatable             :: datatmp(:)
     real(nemsio_dblekind),allocatable            :: datatmp8(:)
     integer :: i,j,ios
-    type(nemsio_read_localdata) :: read_ldata
 !------------------------------------------------------------
 ! read 4 byte rec
 !------------------------------------------------------------
    if(present(iret)) iret=-32
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
 !---
-   if ( read_ldata%mygdatatype .eq. 'bin4') then 
+   call nemsio_getgfile(gfile,iret)
+!---
+   if ( mygdatatype .eq. 'bin4') then 
      if(.not.present(nframe) ) then
        call nemsio_readrecbin4d4(gfile,jrec,data,ios)
      else
-      allocate(datatmp(read_ldata%myfieldsize) )
+      allocate(datatmp(myfieldsize) )
       call nemsio_readrecbin4d4(gfile,jrec,datatmp,ios)
      endif
-   else if ( read_ldata%mygdatatype .eq. 'bin8') then
-     allocate(datatmp8(read_ldata%myfieldsize) )
+   else if ( mygdatatype .eq. 'bin8') then
+     allocate(datatmp8(myfieldsize) )
      call nemsio_readrecbin8d8(gfile,jrec,datatmp8,ios)
    else
-     allocate(datatmp8(read_ldata%myfieldsize) )
+     allocate(datatmp8(myfieldsize) )
      call nemsio_readrecgrb8(gfile,jrec,datatmp8,ios)
    endif
    if ( ios .ne.0 ) then
@@ -138,25 +165,25 @@ contains
    endif
 !---
    if ( present(nframe) ) then
-     if(read_ldata%mygdatatype .eq. 'bin4') then
-       do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-        do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-         data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp(i+nframe        &
-           +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+     if(mygdatatype .eq. 'bin4') then
+       do j=1,mydimy+2*mynframe-2*nframe
+        do i=1,mydimx+2*mynframe -2*nframe
+         data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp(i+nframe        &
+           +(j-1+nframe)*(mydimx+2*mynframe))
         enddo
        enddo
        deallocate(datatmp)
-     elseif(read_ldata%mygdatatype=='bin8'.or.read_ldata%mygdatatype=='grib') then
-       do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-        do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-         data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp8(i+nframe        &
-           +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+     elseif(mygdatatype=='bin8'.or.mygdatatype=='grib') then
+       do j=1,mydimy+2*mynframe-2*nframe
+        do i=1,mydimx+2*mynframe -2*nframe
+         data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp8(i+nframe        &
+           +(j-1+nframe)*(mydimx+2*mynframe))
         enddo
        enddo
        deallocate(datatmp8)
      endif
    else
-     if(read_ldata%mygdatatype=='bin8'.or.read_ldata%mygdatatype=='grib') then
+     if(mygdatatype=='bin8'.or.mygdatatype=='grib') then
        data=datatmp8
        deallocate(datatmp8)
      endif
@@ -179,29 +206,28 @@ contains
     real(nemsio_realkind),allocatable             :: datatmp4(:)
     real(nemsio_dblekind),allocatable             :: datatmp(:)
     integer :: i,j,ios
-    type(nemsio_read_localdata) :: read_ldata
 !------------------------------------------------------------
 ! read 4 byte rec
 !------------------------------------------------------------
    if(present(iret)) iret=-32
+!---
+   call nemsio_getgfile(gfile,iret)
 !
-   call nemsio_getgfile(gfile,read_ldata,iret)
-!
-   if ( read_ldata%mygdatatype .eq. 'bin4') then
-     allocate(datatmp4(read_ldata%myfieldsize))
+   if ( mygdatatype .eq. 'bin4') then
+     allocate(datatmp4(myfieldsize))
      call nemsio_readrecbin4d4(gfile,jrec,datatmp4,ios)
-   else if ( read_ldata%mygdatatype .eq. 'bin8') then
+   else if ( mygdatatype .eq. 'bin8') then
      if(.not.present(nframe)) then
        call nemsio_readrecbin8d8(gfile,jrec,data,ios)
      else
-       allocate(datatmp(read_ldata%myfieldsize))
+       allocate(datatmp(myfieldsize))
        call nemsio_readrecbin8d8(gfile,jrec,datatmp,ios)
      endif
    else
      if(.not.present(nframe)) then
        call nemsio_readrecgrb8(gfile,jrec,data,ios)
      else
-       allocate(datatmp(read_ldata%myfieldsize))
+       allocate(datatmp(myfieldsize))
        call nemsio_readrecgrb8(gfile,jrec,datatmp,ios)
      endif
    endif
@@ -215,25 +241,25 @@ contains
    endif
 !---
    if ( present(nframe) ) then
-     if(read_ldata%mygdatatype=='bin4') then
-        do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-         do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-          data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp4(i+nframe        &
-            +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+     if(mygdatatype=='bin4') then
+        do j=1,mydimy+2*mynframe-2*nframe
+         do i=1,mydimx+2*mynframe -2*nframe
+          data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp4(i+nframe        &
+            +(j-1+nframe)*(mydimx+2*mynframe))
          enddo
         enddo
         deallocate(datatmp4)
-     elseif(read_ldata%mygdatatype=='bin8'.or.read_ldata%mygdatatype=='grib') then
-        do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-         do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-          data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp(i+nframe        &
-            +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+     elseif(mygdatatype=='bin8'.or.mygdatatype=='grib') then
+        do j=1,mydimy+2*mynframe-2*nframe
+         do i=1,mydimx+2*mynframe -2*nframe
+          data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp(i+nframe        &
+            +(j-1+nframe)*(mydimx+2*mynframe))
          enddo
         enddo
         deallocate(datatmp)
      endif
    else
-     if(read_ldata%mygdatatype=='bin4') then
+     if(mygdatatype=='bin4') then
        data=datatmp4
        deallocate(datatmp4)
      endif
@@ -258,26 +284,25 @@ contains
     real(nemsio_realkind),allocatable             :: datatmp(:)
     real(nemsio_dblekind),allocatable             :: datatmp8(:)
     integer :: i,j,ios
-    type(nemsio_read_localdata) :: read_ldata
 !------------------------------------------------------------
 ! read 4 byte rec
 !------------------------------------------------------------
    if(present(iret)) iret=-33
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
 !---
-   if ( read_ldata%mygdatatype .eq. 'bin4') then
+   call nemsio_getgfile(gfile,iret)
+!---
+   if ( mygdatatype .eq. 'bin4') then
      if(.not.present(nframe) ) then
        call nemsio_readrecvbin4d4(gfile,name,levtyp,lev,data,ios)
      else
-       allocate(datatmp(read_ldata%myfieldsize) )
+       allocate(datatmp(myfieldsize) )
        call nemsio_readrecvbin4d4(gfile,name,levtyp,lev,datatmp,ios)
      endif
-   else if ( read_ldata%mygdatatype .eq. 'bin8') then
-     allocate(datatmp8(read_ldata%myfieldsize) )
+   else if ( mygdatatype .eq. 'bin8') then
+     allocate(datatmp8(myfieldsize) )
      call nemsio_readrecvbin8d8(gfile,name,levtyp,lev,datatmp8,ios)
    else
-     allocate(datatmp8(read_ldata%myfieldsize) )
+     allocate(datatmp8(myfieldsize) )
      call nemsio_readrecvgrb8(gfile,name,levtyp,lev,datatmp8,ios)
    endif
    if ( ios .ne.0 ) then
@@ -290,25 +315,25 @@ contains
    endif
 !---
    if ( present(nframe) ) then
-     if(read_ldata%mygdatatype=='bin4') then
-        do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-         do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-          data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp(i+nframe        &
-            +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+     if(mygdatatype=='bin4') then
+        do j=1,mydimy+2*mynframe-2*nframe
+         do i=1,mydimx+2*mynframe -2*nframe
+          data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp(i+nframe        &
+            +(j-1+nframe)*(mydimx+2*mynframe))
          enddo
         enddo
         deallocate(datatmp)
-     elseif(read_ldata%mygdatatype=='bin8'.or.read_ldata%mygdatatype=='grib' ) then
-        do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-         do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-          data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp8(i+nframe        &
-            +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+     elseif(mygdatatype=='bin8'.or.mygdatatype=='grib' ) then
+        do j=1,mydimy+2*mynframe-2*nframe
+         do i=1,mydimx+2*mynframe -2*nframe
+          data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp8(i+nframe        &
+            +(j-1+nframe)*(mydimx+2*mynframe))
          enddo
         enddo
         deallocate(datatmp8)
      endif
    else
-     if(read_ldata%mygdatatype=='bin8'.or.read_ldata%mygdatatype=='grib' ) then
+     if(mygdatatype=='bin8'.or.mygdatatype=='grib' ) then
        data=datatmp8
        deallocate(datatmp8)
      endif
@@ -333,29 +358,28 @@ contains
     real(nemsio_realkind),allocatable             :: datatmp4(:)
     real(nemsio_dblekind),allocatable             :: datatmp(:)
     integer :: i,j,ios
-    type(nemsio_read_localdata) :: read_ldata
 !------------------------------------------------------------
 ! read 8 byte rec
 !------------------------------------------------------------
    if(present(iret)) iret=-33
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
 !---
-   if ( read_ldata%mygdatatype .eq. 'bin4') then
-     allocate(datatmp4(read_ldata%myfieldsize) )
+   call nemsio_getgfile(gfile,iret)
+!---
+   if ( mygdatatype .eq. 'bin4') then
+     allocate(datatmp4(myfieldsize) )
      call nemsio_readrecvbin4d4(gfile,name,levtyp,lev,datatmp4,ios)
-   else if ( read_ldata%mygdatatype .eq. 'bin8') then
+   else if ( mygdatatype .eq. 'bin8') then
      if(.not.present(nframe) ) then
        call nemsio_readrecvbin8d8(gfile,name,levtyp,lev,data,ios)
      else
-       allocate(datatmp(read_ldata%myfieldsize) )
+       allocate(datatmp(myfieldsize) )
        call nemsio_readrecvbin8d8(gfile,name,levtyp,lev,datatmp,ios)
      endif
    else
      if(.not.present(nframe) ) then
        call nemsio_readrecvgrb8(gfile,name,levtyp,lev,data,ios)
      else
-       allocate(datatmp(read_ldata%myfieldsize) )
+       allocate(datatmp(myfieldsize) )
        call nemsio_readrecvgrb8(gfile,name,levtyp,lev,datatmp,ios)
      endif
    endif
@@ -369,25 +393,25 @@ contains
    endif
 !---
    if ( present(nframe) ) then
-      if(read_ldata%mygdatatype=='bin4') then
-        do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-         do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-          data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp4(i+nframe        &
-           +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+      if(mygdatatype=='bin4') then
+        do j=1,mydimy+2*mynframe-2*nframe
+         do i=1,mydimx+2*mynframe -2*nframe
+          data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp4(i+nframe        &
+           +(j-1+nframe)*(mydimx+2*mynframe))
          enddo
         enddo
         deallocate(datatmp4)
-      elseif(read_ldata%mygdatatype=='bin8'.or.read_ldata%mygdatatype=='grib') then
-        do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-         do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-          data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp(i+nframe        &
-           +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+      elseif(mygdatatype=='bin8'.or.mygdatatype=='grib') then
+        do j=1,mydimy+2*mynframe-2*nframe
+         do i=1,mydimx+2*mynframe -2*nframe
+          data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp(i+nframe        &
+           +(j-1+nframe)*(mydimx+2*mynframe))
          enddo
         enddo
         deallocate(datatmp)
       endif
    else
-     if(read_ldata%mygdatatype=='bin4') then
+     if(mygdatatype=='bin4') then
        data=datatmp4
        deallocate(datatmp4)
      endif
@@ -411,29 +435,28 @@ contains
     real(nemsio_realkind),allocatable             :: datatmp(:)
     real(nemsio_dblekind),allocatable             :: datatmp8(:)
     integer :: i,j,ios
-    type(nemsio_read_localdata) :: read_ldata
 !------------------------------------------------------------
 ! read 4 byte rec
 !------------------------------------------------------------
    if(present(iret)) iret=-34
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
 !---
-   if ( read_ldata%mygdatatype .eq. 'bin4') then
+   call nemsio_getgfile(gfile,iret)
+!---
+   if ( mygdatatype .eq. 'bin4') then
      if(.not.present(nframe)) then
        call nemsio_readrecbin4d4(gfile,jrec,data,ios)
      else
-       allocate(datatmp(read_ldata%myfieldsize) )
+       allocate(datatmp(myfieldsize) )
        call nemsio_readrecbin4d4(gfile,jrec,datatmp,ios)
      endif
-   else if ( read_ldata%mygdatatype .eq. 'bin8') then
-      allocate(datatmp8(read_ldata%myfieldsize) )
+   else if ( mygdatatype .eq. 'bin8') then
+      allocate(datatmp8(myfieldsize) )
       call nemsio_readrecbin8d8(gfile,jrec,datatmp8,ios)
    else
      if(.not.present(nframe)) then
        call nemsio_readrecgrb4w34(gfile,jrec,data,ios)
      else
-       allocate(datatmp(read_ldata%myfieldsize) )
+       allocate(datatmp(myfieldsize) )
        call nemsio_readrecgrb4w34(gfile,jrec,datatmp,ios)
      endif
    endif
@@ -447,25 +470,25 @@ contains
    endif
 !---
    if ( present(nframe) ) then
-      if(read_ldata%mygdatatype=='bin4'.or.read_ldata%mygdatatype=='grib') then
-        do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-         do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-          data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp(i+nframe        &
-            +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+      if(mygdatatype=='bin4'.or.mygdatatype=='grib') then
+        do j=1,mydimy+2*mynframe-2*nframe
+         do i=1,mydimx+2*mynframe -2*nframe
+          data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp(i+nframe        &
+            +(j-1+nframe)*(mydimx+2*mynframe))
          enddo
         enddo
         deallocate(datatmp)
-      elseif(read_ldata%mygdatatype=='bin8') then
-        do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-         do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-          data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp8(i+nframe        &
-            +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+      elseif(mygdatatype=='bin8') then
+        do j=1,mydimy+2*mynframe-2*nframe
+         do i=1,mydimx+2*mynframe -2*nframe
+          data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp8(i+nframe        &
+            +(j-1+nframe)*(mydimx+2*mynframe))
          enddo
         enddo
         deallocate(datatmp8)
       endif
    else
-     if(read_ldata%mygdatatype=='bin8') then
+     if(mygdatatype=='bin8') then
        data=datatmp8
        deallocate(datatmp8)
      endif
@@ -490,26 +513,25 @@ contains
     real(nemsio_realkind),allocatable             :: datatmp4(:)
     real(nemsio_dblekind),allocatable             :: datatmp(:)
     integer :: i,j,ios
-    type(nemsio_read_localdata) :: read_ldata
 !------------------------------------------------------------
 ! read 4 byte rec
 !------------------------------------------------------------
    if(present(iret)) iret=-34
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
 !---
-   if ( read_ldata%mygdatatype .eq. 'bin4') then
-     allocate(datatmp4(read_ldata%myfieldsize) )
+   call nemsio_getgfile(gfile,iret)
+!---
+   if ( mygdatatype .eq. 'bin4') then
+     allocate(datatmp4(myfieldsize) )
      call nemsio_readrecbin4d4(gfile,jrec,datatmp4,ios)
-   else if ( read_ldata%mygdatatype .eq. 'bin8') then
+   else if ( mygdatatype .eq. 'bin8') then
      if(.not.present(nframe) ) then
       call nemsio_readrecbin8d8(gfile,jrec,data,ios)
      else
-      allocate(datatmp(read_ldata%myfieldsize) )
+      allocate(datatmp(myfieldsize) )
       call nemsio_readrecbin8d8(gfile,jrec,datatmp,ios)
      endif
    else
-     allocate(datatmp4(read_ldata%myfieldsize) )
+     allocate(datatmp4(myfieldsize) )
      call nemsio_readrecgrb4w34(gfile,jrec,datatmp4,ios)
    endif
    if ( ios .ne.0 ) then
@@ -522,25 +544,25 @@ contains
    endif
 !---
    if ( present(nframe) ) then
-     if(read_ldata%mygdatatype .eq. 'bin4'.or.read_ldata%mygdatatype .eq. 'grib' ) then
-       do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-       do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-        data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp4(i+nframe        &
-          +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+     if(mygdatatype .eq. 'bin4'.or.mygdatatype .eq. 'grib' ) then
+       do j=1,mydimy+2*mynframe-2*nframe
+       do i=1,mydimx+2*mynframe -2*nframe
+        data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp4(i+nframe        &
+          +(j-1+nframe)*(mydimx+2*mynframe))
        enddo
        enddo
        deallocate(datatmp4)
-     else if(read_ldata%mygdatatype .eq. 'bin8') then
-       do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-       do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-        data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp(i+nframe       &
-          +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+     else if(mygdatatype .eq. 'bin8') then
+       do j=1,mydimy+2*mynframe-2*nframe
+       do i=1,mydimx+2*mynframe -2*nframe
+        data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp(i+nframe       &
+          +(j-1+nframe)*(mydimx+2*mynframe))
        enddo
        enddo
        deallocate(datatmp)
      endif
    else
-     if(read_ldata%mygdatatype .eq. 'bin4'.or.read_ldata%mygdatatype .eq. 'grib' ) then
+     if(mygdatatype .eq. 'bin4'.or.mygdatatype .eq. 'grib' ) then
        data=datatmp4
        deallocate(datatmp4)
      endif
@@ -565,29 +587,28 @@ contains
     real(nemsio_realkind),allocatable             :: datatmp(:)
     real(nemsio_dblekind),allocatable             :: datatmp8(:)
     integer :: i,j,ios
-    type(nemsio_read_localdata) :: read_ldata
 !------------------------------------------------------------
 ! read 4 byte rec
 !------------------------------------------------------------
    if(present(iret)) iret=-35
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
 !---
-   if ( read_ldata%mygdatatype .eq. 'bin4') then
+   call nemsio_getgfile(gfile,iret)
+!---
+   if ( mygdatatype .eq. 'bin4') then
      if(.not.present(nframe)) then
        call nemsio_readrecvbin4d4(gfile,name,levtyp,lev,data,ios)
      else
-       allocate(datatmp(read_ldata%myfieldsize) )
+       allocate(datatmp(myfieldsize) )
        call nemsio_readrecvbin4d4(gfile,name,levtyp,lev,datatmp,ios)
      endif
-   else if ( read_ldata%mygdatatype .eq. 'bin8') then
-     allocate(datatmp8(read_ldata%myfieldsize) )
+   else if ( mygdatatype .eq. 'bin8') then
+     allocate(datatmp8(myfieldsize) )
      call nemsio_readrecvbin8d8(gfile,name,levtyp,lev,datatmp8,ios)
    else
      if(.not.present(nframe)) then
        call nemsio_readrecvgrb4w34(gfile,name,levtyp,lev,data,ios)
      else
-       allocate(datatmp(read_ldata%myfieldsize) )
+       allocate(datatmp(myfieldsize) )
        call nemsio_readrecvgrb4w34(gfile,name,levtyp,lev,datatmp,ios)
      endif
    endif
@@ -601,25 +622,25 @@ contains
    endif
 !---
    if ( present(nframe) ) then
-      if(read_ldata%mygdatatype=='bin4'.or.read_ldata%mygdatatype=='grib') then
-        do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-         do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-           data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp(i+nframe        &
-            +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+      if(mygdatatype=='bin4'.or.mygdatatype=='grib') then
+        do j=1,mydimy+2*mynframe-2*nframe
+         do i=1,mydimx+2*mynframe -2*nframe
+           data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp(i+nframe        &
+            +(j-1+nframe)*(mydimx+2*mynframe))
          enddo
         enddo
         deallocate(datatmp)
-      elseif(read_ldata%mygdatatype=='grib8') then
-        do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-         do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-           data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp8(i+nframe        &
-            +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+      elseif(mygdatatype=='grib8') then
+        do j=1,mydimy+2*mynframe-2*nframe
+         do i=1,mydimx+2*mynframe -2*nframe
+           data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp8(i+nframe        &
+            +(j-1+nframe)*(mydimx+2*mynframe))
          enddo
         enddo
         deallocate(datatmp8)
       endif
    else
-      if(read_ldata%mygdatatype=='grib8') then
+      if(mygdatatype=='grib8') then
         data=datatmp8
         deallocate(datatmp8)
       endif
@@ -645,26 +666,25 @@ contains
     real(nemsio_dblekind),allocatable             :: datatmp(:)
     real(nemsio_realkind),allocatable             :: datatmp4(:)
     integer :: i,j,ios
-    type(nemsio_read_localdata) :: read_ldata
 !------------------------------------------------------------
 ! read 8 byte rec
 !------------------------------------------------------------
    if(present(iret)) iret=-35
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
 !---
-   if ( read_ldata%mygdatatype .eq. 'bin4') then
-     allocate(datatmp4(read_ldata%myfieldsize) )
+   call nemsio_getgfile(gfile,iret)
+!---
+   if ( mygdatatype .eq. 'bin4') then
+     allocate(datatmp4(myfieldsize) )
      call nemsio_readrecvbin4d4(gfile,name,levtyp,lev,datatmp4,ios)
-   else if ( read_ldata%mygdatatype .eq. 'bin8') then
+   else if ( mygdatatype .eq. 'bin8') then
      if(.not.present(nframe)) then
        call nemsio_readrecvbin8d8(gfile,name,levtyp,lev,data,ios)
      else
-       allocate(datatmp(read_ldata%myfieldsize) )
+       allocate(datatmp(myfieldsize) )
        call nemsio_readrecvbin8d8(gfile,name,levtyp,lev,datatmp,ios)
      endif
    else
-     allocate(datatmp4(read_ldata%myfieldsize) )
+     allocate(datatmp4(myfieldsize) )
      call nemsio_readrecvgrb4w34(gfile,name,levtyp,lev,datatmp4,ios)
    endif
    if ( ios .ne.0 ) then
@@ -677,25 +697,25 @@ contains
    endif
 !---
    if ( present(nframe) ) then
-      if(read_ldata%mygdatatype .eq. 'bin4'.or.read_ldata%mygdatatype .eq. 'grib') then
-       do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-       do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-        data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp4(i+nframe        &
-          +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+      if(mygdatatype .eq. 'bin4'.or.mygdatatype .eq. 'grib') then
+       do j=1,mydimy+2*mynframe-2*nframe
+       do i=1,mydimx+2*mynframe -2*nframe
+        data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp4(i+nframe        &
+          +(j-1+nframe)*(mydimx+2*mynframe))
        enddo
        enddo
        deallocate(datatmp4)
-      elseif(read_ldata%mygdatatype .eq. 'bin8') then
-       do j=1,read_ldata%mydimy+2*read_ldata%mynframe-2*nframe
-       do i=1,read_ldata%mydimx+2*read_ldata%mynframe -2*nframe
-        data(i+(j-1)*(read_ldata%mydimx+2*read_ldata%mynframe-2*nframe))=datatmp(i+nframe        &
-          +(j-1+nframe)*(read_ldata%mydimx+2*read_ldata%mynframe))
+      elseif(mygdatatype .eq. 'bin8') then
+       do j=1,mydimy+2*mynframe-2*nframe
+       do i=1,mydimx+2*mynframe -2*nframe
+        data(i+(j-1)*(mydimx+2*mynframe-2*nframe))=datatmp(i+nframe        &
+          +(j-1+nframe)*(mydimx+2*mynframe))
        enddo
        enddo
        deallocate(datatmp)
      endif
    else
-     if(read_ldata%mygdatatype .eq. 'bin4'.or.read_ldata%mygdatatype .eq. 'grib') then
+     if(mygdatatype .eq. 'bin4'.or.mygdatatype .eq. 'grib') then
        data=datatmp4
        deallocate(datatmp4)
      endif
@@ -719,16 +739,13 @@ contains
     real(nemsio_realkind),intent(inout)           :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
     integer(nemsio_intkind8) :: iskip,iread,nread
-    type(nemsio_read_localdata) :: read_ldata
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
 
     if(present(iret)) iret=-41
-    iskip=read_ldata%mytlmeta+int(jrec-1,8)*int(kind(data)*read_ldata%myfieldsize+8,8)
+    iskip=mytlmeta+int(jrec-1,8)*int(kind(data)*myfieldsize+8,8)
     iread=int(nemsio_realkind,8)*int(size(data),8)
-    call bafrreadl(read_ldata%myflunit,iskip,iread,nread,data)
+    call bafrreadl(myflunit,iskip,iread,nread,data)
     if(nread.lt.iread) return
-    if(read_ldata%do_byteswap) call byteswap(data,nemsio_realkind,size(data))
+    if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
     if(present(iret)) iret=0
 
     return
@@ -747,18 +764,15 @@ contains
     integer(nemsio_intkind),optional,intent(out)  :: iret
     integer(nemsio_intkind8) :: iskip,iread,nread
     integer :: jrec, ierr
-    type(nemsio_read_localdata) :: read_ldata
 
     if(present(iret)) iret=-42
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
     call nemsio_searchrecv(gfile,jrec,name,levtyp,lev,ierr)
     if ( ierr .ne. 0)  return
-    iskip=read_ldata%mytlmeta+int(jrec-1,8)*int(nemsio_realkind*read_ldata%myfieldsize+8,8)
+    iskip=mytlmeta+int(jrec-1,8)*int(nemsio_realkind*myfieldsize+8,8)
     iread=int(kind(data),8)*int(size(data),8)
-    call bafrreadl(read_ldata%myflunit,iskip,iread,nread,data)
+    call bafrreadl(myflunit,iskip,iread,nread,data)
     if(nread.lt.iread) return
-    if(read_ldata%do_byteswap) call byteswap(data,nemsio_realkind,size(data))
+    if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
     if(present(iret)) iret=0
 
     return
@@ -774,16 +788,13 @@ contains
     real(nemsio_dblekind),intent(out)             :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
     integer(nemsio_intkind8) :: iskip,iread,nread
-    type(nemsio_read_localdata) :: read_ldata
 
     if(present(iret)) iret=-42
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
-    iskip=read_ldata%mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*read_ldata%myfieldsize+8,8)
+    iskip=mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*myfieldsize+8,8)
     iread=int(nemsio_dblekind,8)*int(size(data),8)
-    call bafrreadl(read_ldata%myflunit,iskip,iread,nread,data)
+    call bafrreadl(myflunit,iskip,iread,nread,data)
     if(nread.lt.iread) return
-    if(read_ldata%do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
+    if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
     if(present(iret)) iret=0
 
     return
@@ -802,18 +813,15 @@ contains
     integer(nemsio_intkind),optional,intent(out)  :: iret
     integer(nemsio_intkind8) :: iskip,iread,nread
     integer :: jrec, ierr
-    type(nemsio_read_localdata) :: read_ldata
 
     if(present(iret)) iret=-44
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
     call nemsio_searchrecv(gfile,jrec,name,levtyp,lev,ierr)
     if ( ierr .ne. 0) return
-    iskip=read_ldata%mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*read_ldata%myfieldsize+8,8)
+    iskip=mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*myfieldsize+8,8)
     iread=int(nemsio_dblekind,8)*int(size(data),8)
-    call bafrreadl(read_ldata%myflunit,iskip,iread,nread,data)
+    call bafrreadl(myflunit,iskip,iread,nread,data)
     if(nread.lt.iread) return
-    if(read_ldata%do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
+    if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
     if(present(iret)) iret=0
 
     return
@@ -838,14 +846,11 @@ contains
     logical*1,allocatable       :: lbms(:)
     integer(nemsio_intkind)      :: N=nemsio_kpds_intfill
     integer(nemsio_intkind)      :: ios,i,w34
-    type(nemsio_read_localdata) :: read_ldata
 !
 !------------------------------------------------------------
 ! set up grib meta
 !------------------------------------------------------------
     luidx=0
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
     if ( present(iret)) iret=-45
     w34=1
     call nemsio_setrqst(gfile,grbmeta,ios,jrec=jrec,w34=w34)
@@ -862,9 +867,8 @@ contains
 !------------------------------------------------------------
 ! get data from getgb
 !------------------------------------------------------------
-    call getgbm(read_ldata%myflunit,luidx,grbmeta%jf,N,grbmeta%jpds,grbmeta%jgds,&
-      read_ldata%mymbuf,read_ldata%mycbuf,read_ldata%mynlen,         &
-      read_ldata%mynnum,read_ldata%mymnum, &
+    call getgbm(myflunit,luidx,grbmeta%jf,N,grbmeta%jpds,grbmeta%jgds,&
+      mymbuf,mycbuf,mynlen,mynnum,mymnum, &
       kf,k,kpds,kgds,lbms,data,ios)
     deallocate(lbms,grbmeta%lbms)
     if(ios.ne.0) then
@@ -895,15 +899,12 @@ contains
     logical*1,allocatable       :: lbms(:)
     integer(nemsio_intkind)      :: N=nemsio_kpds_intfill
     integer(nemsio_intkind)      :: ios,i,w34
-    type(nemsio_read_localdata) :: read_ldata
 !
 !------------------------------------------------------------
 ! set up grib meta
 !------------------------------------------------------------
     luidx=0
     if ( present(iret)) iret=-45
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
     w34=1
     call nemsio_setrqst(gfile,grbmeta,ios,vname=vname, &
       vlevtyp=vlevtyp, vlev=vlev ,w34=w34)
@@ -920,9 +921,8 @@ contains
 !------------------------------------------------------------
     allocate(lbms(grbmeta%jf))
     N=0
-    call getgbm(read_ldata%myflunit,luidx,grbmeta%jf,N,grbmeta%jpds,grbmeta%jgds,&
-      read_ldata%mymbuf,read_ldata%mycbuf,read_ldata%mynlen,         &
-      read_ldata%mynnum,read_ldata%mymnum, &
+    call getgbm(myflunit,luidx,grbmeta%jf,N,grbmeta%jpds,grbmeta%jgds,&
+      mymbuf,mycbuf,mynlen,mynnum,mymnum, &
       kf,k,kpds,kgds,lbms,data,ios)
     deallocate(lbms,grbmeta%lbms)
     if(ios.ne.0) then
@@ -956,15 +956,12 @@ contains
     logical*1,allocatable       :: lbms(:)
     integer(nemsio_intkind)      :: N=nemsio_kpds_intfill
     integer(nemsio_intkind)      :: ios,i
-    type(nemsio_read_localdata) :: read_ldata
 !
 !------------------------------------------------------------
 ! set up grib meta 
 !------------------------------------------------------------
     luidx=0
     if ( present(iret)) iret=-46
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
     call nemsio_setrqst(gfile,grbmeta,ios,jrec=jrec)
     if (ios.ne.0) then
        if ( present(iret))  then
@@ -979,9 +976,8 @@ contains
 !------------------------------------------------------------
     allocate(lbms(grbmeta%jf))
     N=0
-    call getgbm(read_ldata%myflunit,luidx,grbmeta%jf,N,grbmeta%jpds,grbmeta%jgds,&
-      read_ldata%mymbuf,read_ldata%mycbuf,read_ldata%mynlen,         &
-      read_ldata%mynnum,read_ldata%mymnum, &
+    call getgbm(myflunit,luidx,grbmeta%jf,N,grbmeta%jpds,grbmeta%jgds,&
+      mymbuf,mycbuf,mynlen,mynnum,mymnum, &
       kf,k,kpds,kgds,lbms,data,ios)
     deallocate(lbms,grbmeta%lbms)
     if(ios.ne.0) then
@@ -1012,15 +1008,12 @@ contains
     logical*1,allocatable       :: lbms(:)
     integer(nemsio_intkind)      :: N=nemsio_kpds_intfill
     integer(nemsio_intkind)      :: ios,i
-    type(nemsio_read_localdata) :: read_ldata
 !
 !------------------------------------------------------------
 ! set up grib meta 
 !------------------------------------------------------------
     luidx=0
     if ( present(iret)) iret=-47
-!
-   call nemsio_getgfile(gfile,read_ldata,iret)
     call nemsio_setrqst(gfile,grbmeta,ios,vname=vname, &
       vlevtyp=vlevtyp, vlev=vlev )
     if (ios.ne.0) then
@@ -1036,9 +1029,8 @@ contains
 !------------------------------------------------------------
     allocate(lbms(grbmeta%jf))
     N=0
-    call getgbm(read_ldata%myflunit,luidx,grbmeta%jf,N,grbmeta%jpds,grbmeta%jgds,&
-      read_ldata%mymbuf,read_ldata%mycbuf,read_ldata%mynlen,         &
-      read_ldata%mynnum,read_ldata%mymnum, &
+    call getgbm(myflunit,luidx,grbmeta%jf,N,grbmeta%jpds,grbmeta%jgds,&
+      mymbuf,mycbuf,mynlen,mynnum,mymnum, &
       kf,k,kpds,kgds,lbms,data,ios)
     deallocate(lbms,grbmeta%lbms)
     if(ios.ne.0) then

@@ -160,36 +160,6 @@ module nemsio_openclose
   real(nemsio_intkind),parameter,public     :: nemsio_kpds_intfill=-1_nemsio_intkind
   real(nemsio_realkind),parameter,public    :: nemsio_undef_grb=9.E20_nemsio_realkind
 !
-  type,public :: nemsio_read_localdata
-    character(8) :: mygdatatype=' '
-    character(255) :: mygfname=' '
-    integer :: mydimx=nemsio_intfill
-    integer :: mydimy=nemsio_intfill
-    integer :: mydimz=nemsio_intfill
-    integer :: mynframe=nemsio_intfill
-    integer :: myfieldsize=nemsio_intfill
-    integer :: mytlmeta=nemsio_intfill
-    integer :: myflunit=nemsio_intfill
-    integer :: mymbuf=nemsio_intfill
-    integer :: mynnum=nemsio_intfill
-    integer :: mynlen=nemsio_intfill
-    integer :: mymnum=nemsio_intfill
-    character,allocatable  :: mycbuf(:)
-    logical :: do_byteswap=.false.
-  end type nemsio_read_localdata
-!
-  type,public :: nemsio_write_localdata
-    character(8) :: mygdatatype=' '
-    integer :: mydimx=nemsio_intfill
-    integer :: mydimy=nemsio_intfill
-    integer :: mydimz=nemsio_intfill
-    integer :: mynframe=nemsio_intfill
-    integer :: myfieldsize=nemsio_intfill
-    integer :: mytlmeta=nemsio_intfill
-    integer :: myflunit=nemsio_intfill
-    logical :: do_byteswap=.false.
-  end type nemsio_write_localdata
-!
   type,public :: nemsio_gfile
     private
     character(nemsio_charkind8) :: gtype=' '
@@ -316,9 +286,6 @@ module nemsio_openclose
     logical                     :: do_byteswap=.false.
     integer(nemsio_intkind)     :: jgds(200)=nemsio_kpds_intfill
     integer(nemsio_intkind)     :: igrid
-!
-    type(nemsio_read_localdata)            :: read_ldata
-    type(nemsio_write_localdata)           :: write_ldata
   end type nemsio_gfile
 !
 !------------------------------
@@ -771,19 +738,6 @@ contains
       iret=-9
       return
     endif
-    gfile%read_ldata%mygdatatype=gfile%gdatatype(1:4)
-    gfile%read_ldata%do_byteswap=gfile%do_byteswap
-    gfile%read_ldata%myflunit=gfile%flunit
-    gfile%read_ldata%mygfname=trim(gfile%gfname)
-    gfile%read_ldata%mytlmeta=gfile%tlmeta
-    if(trim(gfile%read_ldata%mygdatatype)=='grib') then
-      gfile%read_ldata%mymbuf=256*1024
-      gfile%read_ldata%mynnum=0
-      gfile%read_ldata%mynlen=0
-      gfile%read_ldata%mymnum=-1
-      if(allocated(gfile%read_ldata%mycbuf)) deallocate(gfile%read_ldata%mycbuf)
-      allocate(gfile%read_ldata%mycbuf(gfile%read_ldata%mymbuf))
-    endif
 !------------------------------------------------------------
 ! read second meta data record
 !------------------------------------------------------------
@@ -824,12 +778,6 @@ contains
     gfile%rlat_max=meta2%rlat_max
     gfile%extrameta=meta2%extrameta
     gfile%fieldsize=(gfile%dimx+2*gfile%nframe)*(gfile%dimy+2*gfile%nframe)
-!
-    gfile%read_ldata%mydimx=gfile%dimx
-    gfile%read_ldata%mydimy=gfile%dimy
-    gfile%read_ldata%mydimz=gfile%dimz
-    gfile%read_ldata%mynframe=gfile%nframe
-    gfile%read_ldata%myfieldsize=gfile%fieldsize
 
     nmeta=gfile%nmeta-2
 !------------------------------------------------------------
@@ -1450,12 +1398,6 @@ contains
     if(present(extrameta)) gfile%extrameta=extrameta
     if(gfile%fieldsize.eq.nemsio_intfill) &
        gfile%fieldsize=(gfile%dimx+2*gfile%nframe)*(gfile%dimy+2*gfile%nframe)
-!
-    gfile%write_ldata%mydimx=gfile%dimx
-    gfile%write_ldata%mydimy=gfile%dimy
-    gfile%write_ldata%mydimz=gfile%dimz
-    gfile%write_ldata%mynframe=gfile%nframe
-    gfile%write_ldata%myfieldsize=gfile%fieldsize
 !
     if( gfile%extrameta )then
       if(present(nmetavari).and.present(variname).and.present(varival)) then
@@ -2132,12 +2074,7 @@ contains
       endif
 
     endif
-!
-    gfile%write_ldata%mygdatatype=gfile%gdatatype(1:4)
-    gfile%write_ldata%do_byteswap=gfile%do_byteswap
-    gfile%write_ldata%myflunit=gfile%flunit
-    gfile%write_ldata%mytlmeta=gfile%tlmeta
-!
+
     iret=0
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   end subroutine nemsio_wcreate
@@ -2456,7 +2393,7 @@ contains
       varr8name,varr8val,                                                  &
       aryiname,aryilen,aryival,aryrname,aryrlen,aryrval,                   &
       arylname,aryllen,arylval,arycname,aryclen,arycval,                   &
-      aryr8name,aryr8len,aryr8val, read_ldata,write_ldata    )
+      aryr8name,aryr8len,aryr8val    )
 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: get nemsio meta data information from outside
@@ -2504,8 +2441,6 @@ contains
     real(nemsio_dblekind),optional,intent(out)   :: varr8val(:),aryr8val(:,:)
     logical(nemsio_logickind),optional,intent(out):: varlval(:),arylval(:,:)
     character(*),optional,intent(out)             :: varcval(:),arycval(:,:)
-    type(nemsio_read_localdata),optional,intent(out)  :: read_ldata
-    type(nemsio_write_localdata),optional,intent(out) :: write_ldata
 !
     integer i,j
 !------------------------------------------------------------
@@ -2574,7 +2509,7 @@ contains
        endif
     endif
 !--- vcoord
-    if(present(vcoord).and. gfile%nmeta>=6) then
+    if(present(vcoord)) then
        if (size(vcoord) .ne. (gfile%dimz+1)*2*3 ) then
          if ( present(iret))  return
          call nemsio_stop
@@ -2583,7 +2518,7 @@ contains
        endif
     endif
 !--- lat
-    if(present(lat).and. gfile%nmeta>=8 ) then
+    if(present(lat) ) then
        if (size(lat).ne.gfile%fieldsize) then
          print *,'ERROR: size(lat)=',size(lat),' is not equal to ',gfile%fieldsize
          if ( present(iret))  return
@@ -2593,7 +2528,7 @@ contains
        endif
     endif
 !--- lon
-    if(present(lon).and. gfile%nmeta>=8 ) then
+    if(present(lon) ) then
        if (size(lon).ne.gfile%fieldsize) then
          print *,'ERROR: size(lon)=',size(lon),' is not equal to ',gfile%fieldsize
          if ( present(iret)) return
@@ -2603,7 +2538,7 @@ contains
        endif
     endif
 !--- dx
-    if(present(dx).and. gfile%nmeta>=10 ) then
+    if(present(dx) ) then
        if (size(dx).ne.gfile%fieldsize) then
          print *,'ERROR: size(dX)=',size(dx),' is not equal to ',gfile%fieldsize
          if ( present(iret))  return
@@ -2613,7 +2548,7 @@ contains
        endif
     endif
 !--- dy
-    if(present(dy).and. gfile%nmeta>=10 ) then
+    if(present(dy) ) then
        if (size(dy).ne.gfile%fieldsize) then
          print *,'ERROR: size(dy)=',size(dy),' is not equal to ',gfile%fieldsize
          if ( present(iret)) return
@@ -2623,7 +2558,7 @@ contains
        endif
     endif
 !--- Cpi
-    if(present(Cpi).and. gfile%nmeta>=12 ) then
+    if(present(Cpi) ) then
        if (gfile%ntrac+1.ne.size(Cpi)) then
          if ( present(iret)) return
          call nemsio_stop
@@ -2632,7 +2567,7 @@ contains
        endif
     endif
 !--- Ri
-    if(present(Ri).and. gfile%nmeta>=12 ) then 
+    if(present(Ri) ) then 
        if (gfile%ntrac+1.ne.size(Ri)) then
          if ( present(iret)) return
          call nemsio_stop
@@ -2755,9 +2690,6 @@ contains
            aryr8val=gfile%aryr8val
        endif
     endif
-!
-    if(present(read_ldata))  read_ldata=gfile%read_ldata
-    if(present(write_ldata)) write_ldata=gfile%write_ldata
 
     if ( present(iret)) iret=0
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
