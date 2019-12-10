@@ -5,7 +5,7 @@
         Originally written by M.Iredell & J.Wang
 
 Code Management and Version targeted to improve performance by Hang Lei
-
+libver='nemsio_v2.2.4'
 
 Location: URL:
 git clone https://vlab.ncep.noaa.gov/code-review/NCEPLIBS-nemsio
