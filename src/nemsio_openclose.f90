@@ -3785,7 +3785,7 @@ contains
     integer(nemsio_intkind),optional,intent(in)  :: precision
     character(255) :: name,levtyp
     integer :: icen,iptv,itl,jbms,jftu,jp1,jp2,jtr,jna,jnm,ios
-    integer :: i,lev,ktbl,krec,idrt_in
+    integer :: i,lev,ktbl,krec,idrt_in,itr_rw
 !------------------------------------------------------------
 ! with record number, find record name, level type and level
 !------------------------------------------------------------
@@ -3811,6 +3811,7 @@ contains
 !------------------------------------------------------------
     call nemsio_grbtbl_search(trim(name),trim(levtyp),ktbl,krec,ios)
     if(ios.ne.0) return
+     
 !*** lev: for special layer
 !    if ( gribtable(ktbl)%item(krec)%leveltype .eq.'sfc' ) then
     if ( trim(gribtable(ktbl)%item(krec)%leveltype) .ne.'layer' .and. &
@@ -3835,6 +3836,12 @@ contains
       if (gribtable(ktbl)%item(krec)%g1lev.ne.0) then
         grbmeta%jpds(07)=gribtable(ktbl)%item(krec)%g1lev
       endif
+!
+      itr_rw=10
+      if(index(trim(name),"_ave")>0) itr_rw=3
+      if(index(trim(name),"_acc")>0) itr_rw=4
+      if(index(trim(name),"_max")>0) itr_rw=2
+      if(index(trim(name),"_min")>0) itr_rw=2
     else
 !------------------------------------------------------------
 ! for write, need to set up jgds(1:25), jpds(01-20)
@@ -3864,6 +3871,7 @@ contains
            endif
         endif
       endif 
+      itr_rw=jtr
       jbms=0
       if(present(ibms)) jbms=ibms
 !
@@ -3889,7 +3897,7 @@ contains
       jna=0
       jnm=0
       call nemsio_makglpds(gfile,iptv,icen,jbms,&
-           jftu,jp1,jp2,jtr,jna,jnm,jrec,ktbl,krec,lev,grbmeta%jpds,ios)
+           jftu,jp1,jp2,itr_rw,jna,jnm,jrec,ktbl,krec,lev,grbmeta%jpds,ios)
 !        write(0,*)'after nemsio_makglpds,jpds=',grbmeta%jpds(1:25),'ios=',ios,  &
 !           'lev=',lev
       if(ios.ne.0) return
@@ -4107,17 +4115,18 @@ contains
     character(*),intent(in)   :: vname,vlevtyp
     integer(nemsio_intkind),intent(out)   :: ktbl,krec
     integer(nemsio_intkind),intent(out)   :: iret
-    integer  :: i,j,nlen,nlen1
+    integer  :: i,j
     character(16) :: lcname,lclevtyp
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     iret=-5
-    nlen=len(trim(vname))
-    nlen1=len(trim(vlevtyp))
+    i=0
+    i=index(trim(vname),"_")
     lcname=trim(lowercase(trim(vname)))
+    if(i>0) lcname=trim(lowercase(trim(vname(1:i-1))))
     lclevtyp=trim(lowercase(trim(vlevtyp)))
     ktbl=0
     krec=0
-!    write(0,*)'vname=',vname,'vlevtyp=',vlevtyp,'nlen=',nlen,'nlen1=',nlen1
+!    write(0,*)'in nemsio vname=',vname,' vlevtyp=',vlevtyp,' lcname=',trim(lcname),i
     do j=1,size(gribtable)
     do i=1,size(gribtable(j)%item)
       if(trim(gribtable(j)%item(i)%shortname)==trim(lcname) .and. &
@@ -4129,7 +4138,7 @@ contains
       endif
     enddo 
     enddo 
-!    write(0,*)'in grbtbl_search,krec=',krec,'ktbl=',ktbl
+!    write(0,*)'in grbtbl_search,krec=',krec,'ktbl=',ktbl,'krec=',krec
   end subroutine nemsio_grbtbl_search
 !------------------------------------------------------------------------------
   subroutine nemsio_chkgfary(gfile,iret)
@@ -4237,7 +4246,7 @@ contains
     endif
     if(gfile%nmeta>=6)then
       allocate(gfile%vcoord(dimvcoord1,3,2) ,stat=iret2) 
-      if(iret3.eq.0) then
+      if(iret2.eq.0) then
       gfile%vcoord=nemsio_realfill
       endif
       iret=iret+abs(iret2)
@@ -4934,6 +4943,12 @@ contains
     gribtable(1)%item(117)=nemsio_grbtbl_item('csdsf','sfc',0,0,161,1)
     gribtable(1)%item(118)=nemsio_grbtbl_item('csulf','sfc',0,0,162,1)
     gribtable(1)%item(119)=nemsio_grbtbl_item('snohf','sfc',0,0,229,1)
+
+    gribtable(1)%item(120)=nemsio_grbtbl_item('vbdsf','sfc',0,0,166,1)
+    gribtable(1)%item(121)=nemsio_grbtbl_item('vddsf','sfc',0,0,167,1)
+    gribtable(1)%item(122)=nemsio_grbtbl_item('nbdsf','sfc',0,0,168,1)
+    gribtable(1)%item(123)=nemsio_grbtbl_item('nddsf','sfc',0,0,169,1)
+    gribtable(1)%item(124)=nemsio_grbtbl_item('cpofp','sfc',0,0,194,1)
 !    
 !    gribtable(1)%item(50)=nemsio_grbtbl_item('nlat','sfc',2,0,176,1)
 !    gribtable(1)%item(51)=nemsio_grbtbl_item('elon','sfc',2,0,177,1)
