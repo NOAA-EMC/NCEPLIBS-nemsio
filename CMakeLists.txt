@@ -30,7 +30,7 @@ if( (BUILD_RELEASE) OR (BUILD_PRODUCTION) )
 #   set(CMAKE_Fortran_FLAGS "-g -traceback -O3 -fPIC" CACHE INTERNAL "" )
   elseif(GNUComp)
     set(CMAKE_Fortran_FLAGS "-O2 -ffree-form " CACHE INTERNAL "" )
-    include_directories(${MPI_INCLUDE_PATH}/gfortran/8.2.0 )
+    include_directories(${MPI_INCLUDE_PATH} )
   elseif(PGIComp)
   else()
     message("unkown compiler!")
@@ -41,9 +41,9 @@ set(LIBNAME ${CMAKE_PROJECT_NAME}_${VERSION})
 file(GLOB LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/*.f90 )
 add_definitions( ${CMAKE_Fortran_FLAGS} )
 add_library(${LIBNAME} STATIC ${LIB_SRC} )
-set(CMAKE_INCLUDE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
-set_target_properties(${LIBNAME} PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
-target_include_directories(${LIBNAME} PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/include")
+set(CMAKE_INCLUDE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include_4")
+set_target_properties(${LIBNAME} PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include_4")
+target_include_directories(${LIBNAME} PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/include_4")
 
 file(MAKE_DIRECTORY ${CMAKE_INCLUDE_OUTPUT_DIRECTORY})
 
@@ -52,4 +52,4 @@ install(TARGETS ${LIBNAME}
         LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib) 
 
-install(DIRECTORY ${CMAKE_INCLUDE_OUTPUT_DIRECTORY}/ DESTINATION include )
+install(DIRECTORY ${CMAKE_INCLUDE_OUTPUT_DIRECTORY}/ DESTINATION include_4 )
