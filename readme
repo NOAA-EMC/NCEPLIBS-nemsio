@@ -5,7 +5,13 @@
         Originally written by M.Iredell & J.Wang
 
 Code Management and Version targeted to improve performance by Hang Lei
+libver='nemsio_v2.2.4'
 
+e.g.cmake on Hera: 
+cmake -DCMAKE_C_COMPILER=icc -DCMAKE_CXX_COMPILER=icpc -DCMAKE_Fortran_COMPILER=ifort -DMPI_LIBRARIES=/apps/intel/compilers_and_libraries_2018/linux/mpi/intel64/lib -DMPI_INCLUDES=/apps/intel/compilers_and_libraries_2018/linux/mpi/intel64/include .
+
+cmake --build .
+==============================================
 
 Location: URL:
 git clone https://vlab.ncep.noaa.gov/code-review/NCEPLIBS-nemsio
