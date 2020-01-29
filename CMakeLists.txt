@@ -10,7 +10,6 @@ if (NOT CMAKE_BUILD_TYPE)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-  message("setting intel true")
   set(IntelComp true )
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU*" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang*")
   set(GNUComp true )
@@ -28,8 +27,8 @@ STRING(COMPARE EQUAL ${CMAKE_BUILD_TYPE} "DEBUG" BUILD_DEBUG)
 if( (BUILD_RELEASE) OR (BUILD_PRODUCTION) )
   if(IntelComp)
     include_directories(${MPI_INCLUDE_PATH} )
-    set(fortran_flags "-O2" "-convert big_endian" "-free" "-assume byterecl"
-      "-fp-model strict" "-traceback"  "-g" "-mkl" "-qopenmp")
+    set(fortran_flags "-O2" "-convert" "big_endian" "-free" "-assume" "byterecl"
+      "-fp-model" "strict" "-traceback"  "-g" "-mkl" "-qopenmp")
   elseif(GNUComp)
     set(fortran_flags "-O2" "-ffree-form")
   else()
