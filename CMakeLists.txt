@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
 
+file(STRINGS "VERSION" pVersion)
+
 project(
   nemsio
-  VERSION 2.2.3
+  VERSION ${pVersion}
   LANGUAGES Fortran)
 
 if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
@@ -21,14 +23,13 @@ endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
   set(CMAKE_Fortran_FLAGS
-      "-qopenmp -convert big_endian -free -assume byterecl -fp-model strict -mkl"
+      "-g -convert big_endian -free -assume byterecl -fp-model strict -mkl"
   )
   set(CMAKE_Fortran_FLAGS_RELEASE "-O2")
-  set(CMAKE_Fortran_FLAGS_DEBUG "-g")
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
-  set(CMAKE_Fortran_FLAGS "-fconvert=big-endian -ffree-form")
+  set(CMAKE_Fortran_FLAGS "-g -fconvert=big-endian -ffree-form")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O2")
-  set(CMAKE_Fortran_FLAGS_DEBUG "-g -Wall")
+  set(CMAKE_Fortran_FLAGS_DEBUG "-ggdb -Wall")
 endif()
 
 find_package(MPI REQUIRED COMPONENTS Fortran)
