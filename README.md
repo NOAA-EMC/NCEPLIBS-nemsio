@@ -1,11 +1,13 @@
 # NEMSIO
 
-Performs I/O for the NCEP models using NEMS.
+Byte addressable I/O C package (originally written by Mark Iredell and Jun Wang)
+
+Code manager: Hang Lei
 
 
 ### Prerequisites
 
-Compilers: GNU | Intel | Clang | AppleClang | PGI
+Compilers: GNU | Intel | Clang | AppleClang
 with MPI
 
 
@@ -22,7 +24,7 @@ make install
 
 ### Version
 
-2.2.3
+2.3.0
 
 
 ### Authors
