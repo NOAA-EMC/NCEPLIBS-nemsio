@@ -1,6 +1,6 @@
 # NEMSIO
 
-Byte addressable I/O C package (originally written by Mark Iredell and Jun Wang)
+Performs I/O for the NCEP models using NEMS.
 
 Code manager: Hang Lei
 
