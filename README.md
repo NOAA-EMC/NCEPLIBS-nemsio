@@ -2,10 +2,12 @@
 
 Performs I/O for the NCEP models using NEMS.
 
+Code manager: Hang Lei
+
 
 ### Prerequisites
 
-Compilers: GNU | Intel | Clang | AppleClang | PGI
+Compilers: GNU | Intel | Clang | AppleClang
 with MPI
 
 
@@ -22,9 +24,9 @@ make install
 
 ### Version
 
-2.2.3
+2.3.0
 
 
 ### Authors
 
-* **[NCEP/EMC](NCEP.List.EMC.nceplibs.Developers@noaa.gov)**
+* **[NCEP/EMC](mailto:NCEP.List.EMC.nceplibs.Developers@noaa.gov)**
