@@ -21,6 +21,15 @@ make -j2
 make install
 ```
 
+### Utilities
+- `nemsio_get` - get the value of a variable in the file
+- `nemsio_read` - read a nemsio file and print statistics to screen
+- `nemsio_chgdate` - change datetime stamp in the nemsio file
+- `mkgfsnemsioctl` - create GrADS ctl file to read nemsio data in GrADS
+
+### Testing
+`ctest` is used to read a test file. More tests will be added as needed
+
 
 ### Version
 
