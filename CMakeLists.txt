@@ -7,6 +7,8 @@ project(
   VERSION ${pVersion}
   LANGUAGES Fortran)
 
+enable_testing()
+
 if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
   message(STATUS "Setting build type to 'Release' as none was specified.")
   set(CMAKE_BUILD_TYPE
@@ -23,7 +25,7 @@ endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
   set(CMAKE_Fortran_FLAGS
-      "-g -convert big_endian -free -assume byterecl -fp-model strict -mkl"
+      "-g -traceback -convert big_endian -free -assume byterecl -fp-model strict -mkl"
   )
   set(CMAKE_Fortran_FLAGS_RELEASE "-O2")
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
@@ -34,30 +36,14 @@ endif()
 
 find_package(MPI REQUIRED COMPONENTS Fortran)
 
-set(fortran_src
-    src/nemsio_module.f90 src/nemsio_module_mpi.f90 src/nemsio_openclose.f90
-    src/nemsio_read.f90 src/nemsio_write.f90)
+if(NOT TARGET bacio_4)
+  find_package(bacio REQUIRED)
+endif()
 
-set(lib_name ${PROJECT_NAME})
-set(versioned_lib_name ${PROJECT_NAME}_v${PROJECT_VERSION})
-set(module_dir ${CMAKE_CURRENT_BINARY_DIR}/include)
+if(NOT TARGET w3nco_d)
+  find_package(w3nco REQUIRED)
+endif()
 
-add_library(${lib_name} STATIC ${fortran_src})
-set_target_properties(${lib_name} PROPERTIES OUTPUT_NAME ${versioned_lib_name})
-set_target_properties(${lib_name} PROPERTIES Fortran_MODULE_DIRECTORY
-                                             ${module_dir})
-target_include_directories(${lib_name} PRIVATE ${MPI_Fortran_INCLUDE_DIRS})
-target_include_directories(
-  ${lib_name} PUBLIC $<BUILD_INTERFACE:${module_dir}>
-                     $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>)
-
-install(
-  TARGETS ${lib_name}
-  EXPORT ${PROJECT_NAME}-config
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib)
-install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
-
-install(EXPORT ${PROJECT_NAME}-config
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME})
+add_subdirectory(src)
+add_subdirectory(utils)
+add_subdirectory(unit_test)
