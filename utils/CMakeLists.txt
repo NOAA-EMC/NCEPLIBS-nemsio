@@ -10,7 +10,6 @@ target_link_libraries(nemsio_chgdate nemsio)
 add_executable(mkgfsnemsioctl mkgfsnemsioctl.f90)
 target_link_libraries(mkgfsnemsioctl nemsio)
 
-install(TARGETS nemsio_read    RUNTIME DESTINATION bin)
-install(TARGETS nemsio_get     RUNTIME DESTINATION bin)
-install(TARGETS nemsio_chgdate RUNTIME DESTINATION bin)
-install(TARGETS mkgfsnemsioctl RUNTIME DESTINATION bin)
+install(TARGETS nemsio_read nemsio_get nemsio_chgdate mkgfsnemsioctl
+  RUNTIME DESTINATION bin COMPONENT utilities)
+
