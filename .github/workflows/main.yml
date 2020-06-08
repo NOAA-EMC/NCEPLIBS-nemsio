@@ -10,6 +10,10 @@ jobs:
 
     steps:
 
+    - name: install-mpi
+      run: |
+        sudo apt-get install libmpich-dev
+
     - name: checkout-pfunit
       uses: actions/checkout@v2
       with:
