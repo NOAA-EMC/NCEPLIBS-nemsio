@@ -13,8 +13,8 @@ include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake")
 
 include(CMakeFindDependencyMacro)
 
-find_dependency(bacio)
-find_dependency(w3nco)
+find_dependency(bacio CONFIG)
+find_dependency(w3nco CONFIG)
 find_dependency(MPI COMPONENTS Fortran)
 
 get_target_property(@PROJECT_NAME@_BUILD_TYPES @PROJECT_NAME@::@PROJECT_NAME@ IMPORTED_CONFIGURATIONS)
