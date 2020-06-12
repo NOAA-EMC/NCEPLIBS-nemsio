@@ -45,7 +45,6 @@ jobs:
         ref: develop
 
     - name: build-bacio
-      if: steps.cache-bacio.outputs.cache-hit != 'true'
       run: |
         cd bacio
         mkdir build
@@ -62,7 +61,6 @@ jobs:
         ref: develop
 
     - name: build-w3nco
-      if: steps.cache-w3nco.outputs.cache-hit != 'true'
       run: |
         cd w3nco
         mkdir build
