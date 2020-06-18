@@ -16,62 +16,32 @@ README                   - current file
 src
 modulefiles
 
+*** Usage: ./build_w3emc.sh dell|cray|wcoss|theia|hera|gaea|jet|intel_general|gnu_general libver=<lib_ver> [debug] [compileonly] [prefix=<installpath>]
 ================================================
 -------------
-Adjust to NCO format for version v2.2.5
-on WCOSS-Phase 1/2 and theia
+Adjust to NCO format for version v2.2.4
 ----------------------------------------------
-lib/nemsio/v2.2.5
+lib/nemsio/v2.2.4
             |
             `--src
             `--modulefiles
             |     |
-            |     `--v2.2.5
+            |     `--v2.2.4
             `--unit_test
-            `--libnemsio_v2.2.5.a
+            `--lib/libnemsio_v2.2.4.a
             |
             `--include
                   |
-                  `--nemsio_v2.0.2.3
+                  `--nemsio_v2.2.4
                            |
                            `--nemsio_*.mod
-
-
-on WCOSS-Cray
------------------------------------------
-lib/nemsio/v2.2.5
-      |
-      `--src
-      `--modulefiles
-      |     |
-      |     `--v2.2.5
-      `--unit_test
-      `--intel
-      |     |
-      |     `--libnemsio_v2.2.5.a
-      |     |
-      |     `--include
-      |           |
-      |           `--nemsio_v2.2.5
-      |                    |
-      |                    `--nemsio_*.mod
-      |
-      `--cray
-            |
-            `--libnemsio_v2.2.5.a
-            |
-            `--include
-                  |
-                  `--nemsio_v2.2.5
-                           |
-                           `--NEMSIO_*.mod
 
 
 
 nceplibs/nemsio lib:
 
 ==================================================
-V2.2.5 Hang Lei  since version 2.2.5, the nemsio library only update on VLAB.
+V2.2.4 Hang Lei  since version 2.2.4, the nemsio library only update on github.
                  In this version, the improvement is made to read extra meta data in nemsio files.
                  logical conditions is added in nemsio_openclose.f90 line 2512-2570.
 
