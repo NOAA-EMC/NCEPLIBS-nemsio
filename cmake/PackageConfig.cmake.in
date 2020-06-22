@@ -20,3 +20,6 @@ find_dependency(MPI COMPONENTS Fortran)
 get_target_property(@PROJECT_NAME@_BUILD_TYPES @PROJECT_NAME@::@PROJECT_NAME@ IMPORTED_CONFIGURATIONS)
 
 check_required_components("@PROJECT_NAME@")
+
+get_target_property(location @PROJECT_NAME@::@PROJECT_NAME@ LOCATION)
+message(STATUS "Found @PROJECT_NAME@: ${location} (found version @PROJECT_VERSION@)")
