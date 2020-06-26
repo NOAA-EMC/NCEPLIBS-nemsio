@@ -117,8 +117,8 @@
 
 !
 !---read 2 fields:tmp and hgt
-  tmp=0.
   allocate(tmp(fieldsize),data1(im+2*nframe,jm+2*nframe))
+  tmp=0.
   do jrec=1,nrec
     call nemsio_getrechead(gfile,jrec,vname,vlevtyp,vlev,iret)
     call nemsio_readrec(gfile,jrec,tmp,iret=iret)
