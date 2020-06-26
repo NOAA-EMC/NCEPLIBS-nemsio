@@ -33,7 +33,7 @@ make install
 
 ### Version
 
-2.3.0
+2.4.0
 
 
 ### Authors
