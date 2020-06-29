@@ -1,3 +1,5 @@
+find_package(bacio REQUIRED)
+find_package(w3nco REQUIRED)
 
 set(tstName read_nemsio)
 set(srcName read_nemsio.f90)
@@ -14,5 +16,5 @@ add_test(NAME ${tstName} COMMAND ${exeName} testdataset)
 
 add_pfunit_ctest (nemsio_test
   TEST_SOURCES test_mod.pf
-  LINK_LIBRARIES nemsio
+  LINK_LIBRARIES nemsio bacio::bacio_4 w3nco::w3nco_d)
 )
