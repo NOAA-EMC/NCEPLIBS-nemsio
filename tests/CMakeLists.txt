@@ -1,4 +1,3 @@
-find_package(bacio REQUIRED)
 set(tstName read_nemsio)
 set(srcName read_nemsio.f90)
 set(exeName read_nemsio.x)
