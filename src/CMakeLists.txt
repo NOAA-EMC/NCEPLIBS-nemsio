@@ -27,7 +27,9 @@ set_target_properties(${lib_name} PROPERTIES Fortran_MODULE_DIRECTORY
 target_include_directories(${lib_name} INTERFACE
   $<BUILD_INTERFACE:${module_dir}>
   $<INSTALL_INTERFACE:include>)
-target_link_libraries(${lib_name} PRIVATE MPI::MPI_Fortran bacio::bacio_4 w3nco::w3nco_d)
+
+#depends on w3nco and bacio, but users must link their own version
+target_link_libraries(${lib_name} PRIVATE MPI::MPI_Fortran)
 list(APPEND LIB_TARGETS ${lib_name})
 
 install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
