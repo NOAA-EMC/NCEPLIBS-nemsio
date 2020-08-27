@@ -8,7 +8,7 @@ set(fortran_src
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
   set(CMAKE_Fortran_FLAGS
-      "-g -traceback -convert big_endian -free -assume byterecl -fp-model strict -mkl ${CMAKE_Fortran_FLAGS}"
+      "-g -traceback -convert big_endian -free -assume byterecl -fp-model strict ${CMAKE_Fortran_FLAGS}"
   )
   set(CMAKE_Fortran_FLAGS_RELEASE "-O2")
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU)$")
