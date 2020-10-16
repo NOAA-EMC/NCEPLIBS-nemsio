@@ -11,6 +11,13 @@ NCEP/EMC developers.
 
 Code manager: Hang Lei
 
+## Prerequisites
+
+This package requires the
+[NCEPLIBS-bacio](https://github.com/NOAA-EMC/NCEPLIBS-bacio) and the
+[NCEPLIBS-w3nco](https://github.com/NOAA-EMC/NCEPLIBS-w3nco)
+libraries.
+
 ## Installing
 
 ```
