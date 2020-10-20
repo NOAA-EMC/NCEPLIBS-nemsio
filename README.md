@@ -11,6 +11,15 @@ NCEP/EMC developers.
 
 Code manager: Hang Lei
 
+## Prerequisites
+
+This library requires the
+[NCEPLIBS-bacio](https://github.com/NOAA-EMC/NCEPLIBS-bacio) and the
+[NCEPLIBS-w3nco](https://github.com/NOAA-EMC/NCEPLIBS-w3nco)
+libraries.
+
+This library also requires an MPI-enabled Fortran compiler.
+
 ## Installing
 
 ```
