@@ -7,7 +7,7 @@ Performs I/O for the NCEP models using NEMS. This is part of the
 
 ## Authors
 
-NCEP/EMC developers.
+M.Iredell, J.Wang, Hang Lei, other NCEP/EMC developers.
 
 Code manager: Hang Lei
 
