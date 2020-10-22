@@ -1,4 +1,4 @@
-# This is the CMake file for building the docs directory of NCEPLIBS-ip.
+# This is the CMake file for building the docs directory of NCEPLIBS-nemsio.
 #
 # Ed Hartnett 10/5/20
 
