@@ -1,35 +1,31 @@
-!----------------------------------------------------------------------------
+!> @file
+!! Read data fields from a nemsio file.
+!! @author J. Wang @date 2011-01-13
+!!
+!! This module provides subroutines to write data fields into of a
+!!           nemsio file. The data file could be 'bin4','bin8', or 'grib'.
+!!           The dat field could be written by the record number
+!!           or by given the data field name, level type and level. Overload
+!!           interfaces are provided to handle different data type (real(4)
+!!           or real(8)) of the array that holds the data.
+!!
+!! Possible return code
+!!  -        0   Successful call
+!!  -       -61  get dimension from gfile
+!!  -       -62  write data field by record number using w3d
+!!  -       -63  write data field by given data field name,level type and level using w3d
+!!  -       -64  write data field by record number using w34
+!!  -       -65  write data field by given data field name,level type and level using w34
+!!  -       -71  write data field by record number from 4 byte real binary file
+!!  -       -72  write data field by record number from 8 byte real binary file
+!!  -       -73  write data field by field name,levtyp and lev from 4 byte real binary file
+!!  -       -74  write data field by field name,levtyp and lev from 8 byte real binary file
+!!  -       -75  write data field by record number using w34 from grib data
+!!  -       -76  write data field by field name,level type and level using w34 from grib data
+!!  -       -77  write data field by record number using w3d from grib data
+!!  -       -78  write data field by field name,level type and level using w3d from grib data
+!!
 module nemsio_write
-!
-!$$$ documentation clock
-!
-! module: nemsio_read      read data fields from a nemsio file
-!  Programmer: J. Wang          date: 2011-01-13
-!
-! abstract: this module provides subroutines to write data fields into of a
-!           nemsio file. The data file could be 'bin4','bin8', or 'grib'.
-!           The dat field could be written by the record number
-!           or by given the data field name, level type and level. Overload
-!           interfaces are provided to handle different data type (real(4)
-!           or real(8)) of the array that holds the data.
-!
-! Possible return code
-!          0   Successful call
-!         -61  get dimension from gfile
-!         -62  write data field by record number using w3d
-!         -63  write data field by given data field name,level type and level using w3d
-!         -64  write data field by record number using w34
-!         -65  write data field by given data field name,level type and level using w34
-!         -71  write data field by record number from 4 byte real binary file
-!         -72  write data field by record number from 8 byte real binary file
-!         -73  write data field by field name,levtyp and lev from 4 byte real binary file
-!         -74  write data field by field name,levtyp and lev from 8 byte real binary file
-!         -75  write data field by record number using w34 from grib data
-!         -76  write data field by field name,level type and level using w34 from grib data
-!         -77  write data field by record number using w3d from grib data
-!         -78  write data field by field name,level type and level using w3d from grib data
-!------------------------------------------------------------------------------
-!
   use nemsio_openclose
 !
   implicit none

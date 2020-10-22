@@ -5,9 +5,12 @@
 Performs I/O for the NCEP models using NEMS. This is part of the
 [NCEPLIBS](https://github.com/NOAA-EMC/NCEPLIBS) project.
 
+For complete documentation see
+https://noaa-emc.github.io/NCEPLIBS-nemsio/.
+
 ## Authors
 
-NCEP/EMC developers.
+M.Iredell, J.Wang, Hang Lei, mahajan, other NCEP/EMC developers.
 
 Code manager: Hang Lei
 

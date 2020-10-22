@@ -1,3 +1,6 @@
+# This is the main CMake file for NCEPLIBS-nemsio.
+#
+# Mark Potts, Kyle Gerheiser
 cmake_minimum_required(VERSION 3.15)
 
 file(STRINGS "VERSION" pVersion)
@@ -10,6 +13,7 @@ project(
 include(GNUInstallDirs)
 
 option(ENABLE_TESTS "Build pfunit tests?" OFF)
+option(ENABLE_DOCS "Enable generation of doxygen-based documentation." OFF)
 
 if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
   message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -37,3 +41,10 @@ if(ENABLE_TESTS)
   enable_testing()
   add_subdirectory(tests)
 endif()
+
+# Determine whether or not to generate documentation.
+if(ENABLE_DOCS)
+  find_package(Doxygen REQUIRED)
+endif()
+add_subdirectory(docs)  
+
