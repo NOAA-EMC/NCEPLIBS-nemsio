@@ -1,129 +1,124 @@
-!----------------------------------------------------------------------------
-module nemsio_module_mpi
-!$$$ module document block
-!
-! module:   nemsio_module      API for NEMS input/output 
-!
-! Abstract: This module handles NEMS input/output
-!
-! Program history log
-!    2006-11-10    Jun Wang  for gfsio
-!    2008-02-29    Jun Wang
-!    2010-09-06    Jun Wang change in/out attributes for densewrt
-!    2011-10-31    Jun Wang remove bacio, write header from mpiio
-!
-! Public Variables
-! Public Defined Types
-!   nemsio_gfile
-!     private
-!        gtype:   character(nemsio_charkind*2)  NEMSIO file identifier
-!        gdatatype:character(nemsio_charkind) data format
-!        modelname:character(nemsio_charkind) modelname
-!        version: integer(nemsio_intkind)   verion number
-!        nmeta:   integer(nemsio_intkind)   number of metadata rec
-!        lmeta:   integer(nemsio_intkind)   length of metadata rec 2 for model paramodels
-!        nrec:    integer(nemsio_intkind)   number of data rec
-!        idate(1:7):integer(nemsio_intkind) initial date (yyyy/mm/dd/hh/mm/ssn/ssd)
-!        nfday:   integer(nemsio_intkind)   forecast day
-!        nfhour:  integer(nemsio_intkind)   forecast hour
-!        nfminute:integer(nemsio_intkind)   forecast minutes
-!        nfsecondn:integer(nemsio_intkind)  numerator of forecast second fraction
-!        nfsecondd:integer(nemsio_intkind)  denominator of forecast second fraction
-!        dimy:    integer(nemsio_intkind)   dimension in latitude
-!        dimx:    integer(nemsio_intkind)   dimension in Longitude
-!        dimz:    integer(nemsio_intkind)   number of levels
-!        nframe:  integer(nemsio_intkind)   dimension of halo
-!        nsoil:    integer(nemsio_intkind)  number of soil layers
-!        ntrac:    integer(nemsio_intkind)  number of tracers
-!        jcap:    integer(nemsio_intkind)   spectral truncation
-!        ncldt:   integer(nemsio_intkind)   number of cloud types
-!        idsl:    integer(nemsio_intkind)   semi-lagrangian id
-!        idvc:    integer(nemsio_intkind)   vertical coordinate id
-!        idvm:    integer(nemsio_intkind)   mass variable id
-!        idrt:    integer(nemsio_intkind)   grid identifier
-!                 (idrt=4 for gaussian grid,
-!                  idrt=0 for equally-spaced grid including poles,
-!                  idrt=256 for equally-spaced grid excluding poles)
-!        rlon_min:real(nemsio_realkind)     minimal longtitude of regional domain (global:set to 0)
-!        rlon_max:real(nemsio_realkind)     maximal longtitude of regional domain (global:set to 360.)
-!        rlat_min:real(nemsio_realkind)     minimal longtitude of regional domain (global:set to -90)
-!        rlat_max:real(nemsio_realkind)     maximal longtitude of regional domain (global:set to 90)
-!        extrameta:logical(nemsio_logickind)extra meta data flag 
-!        nmetavari:integer(nemsio_intkind)  number of extra meta data integer variables
-!        nmetavarr:integer(nemsio_intkind)  number of extra meta data real variables
-!        nmetavarl:integer(nemsio_intkind)  number of extra meta data logical variables
-!        nmetavarc:integer(nemsio_intkind)  number of extra meta data character variables
-!        nmetaaryi:integer(nemsio_intkind)  number of extra meta data integer arrays
-!        nmetaaryr:integer(nemsio_intkind)  number of extra meta data real arrays
-!        nmetaaryl:integer(nemsio_intkind)  number of extra meta data logical arrays
-!        nmetaaryc:integer(nemsio_intkind)  number of extra meta data character arrays
-!
-!        recname: character(nemsio_charkind),allocatable    recname(:)
-!        reclevtyp: character(nemsio_charkind*2),allocatable    reclevtyp(:)
-!        reclev:  integer(nemsio_intkind),allocatable       reclev(:)
-!        vcoord:  real(nemsio_realkind),allocatable         vcoord(:,:,:)
-!        lat:  real(nemsio_realkind),allocatable         lat(:) lat for mess point
-!        lon:  real(nemsio_realkind),allocatable         lon(:) lon for mess point
-!        gvlat1d: real(nemsio_realkind),allocatable         gvlat1d(:) lat for wind point
-!        gvlon1d: real(nemsio_realkind),allocatable         gvlon1d(:) lon for wind point
-!        Cpi:     real(nemsio_realkind),allocatable         cpi(:)
-!        Ri:      real(nemsio_realkind),allocatable         ri(:)
-!
-!        variname:character(nemsio_charkind)  names of extra meta data integer variables
-!        varrname:character(nemsio_charkind)  names of extra meta data real variables
-!        varlname:character(nemsio_charkind)  names of extra meta data logical variables
-!        varcname:character(nemsio_charkind)  names of extra meta data character variables
-!        varival: integer(nemsio_intkind)     values of extra meta data integer variables
-!        varrval: real(nemsio_realkind)       values of extra meta data integer variables
-!        varlval: logical(nemsio_logickind)   values of extra meta data integer variables
-!        varcval: character(nemsio_charkind)  values of extra meta data integer variables
-!        aryiname:character(nemsio_charkind)  names of extra meta data integer arrays
-!        aryrname:character(nemsio_charkind)  names of extra meta data real arrays
-!        arylname:character(nemsio_charkind)  names of extra meta data logical arrays
-!        arycname:character(nemsio_charkind)  names of extra meta data character arrays
-!        aryilen: integer(nemsio_intkind)     lengths of extra meta data integer arrays
-!        aryilen: integer(nemsio_intkind)     number of extra meta data integer arrays
-!        aryilen: integer(nemsio_intkind)     number of extra meta data integer arrays
+!> @file
+!! API for NEMS input/output 
+!!
+!! Program history log
+!! -   2006-11-10    Jun Wang  for gfsio
+!! -   2008-02-29    Jun Wang
+!! -   2010-09-06    Jun Wang change in/out attributes for densewrt
+!! -   2011-10-31    Jun Wang remove bacio, write header from mpiio
+!!
+!! Public Variables
+!! Public Defined Types
+!!   nemsio_gfile
+!!     private
+!!  -      gtype:   character(nemsio_charkind*2)  NEMSIO file identifier
+!!  -      gdatatype:character(nemsio_charkind) data format
+!!  -      modelname:character(nemsio_charkind) modelname
+!!  -      version: integer(nemsio_intkind)   verion number
+!!  -      nmeta:   integer(nemsio_intkind)   number of metadata rec
+!!  -      lmeta:   integer(nemsio_intkind)   length of metadata rec 2 for model paramodels
+!!  -      nrec:    integer(nemsio_intkind)   number of data rec
+!!  -      idate(1:7):integer(nemsio_intkind) initial date (yyyy/mm/dd/hh/mm/ssn/ssd)
+!!  -      nfday:   integer(nemsio_intkind)   forecast day
+!!  -      nfhour:  integer(nemsio_intkind)   forecast hour
+!!  -      nfminute:integer(nemsio_intkind)   forecast minutes
+!!  -      nfsecondn:integer(nemsio_intkind)  numerator of forecast second fraction
+!!  -      nfsecondd:integer(nemsio_intkind)  denominator of forecast second fraction
+!!  -      dimy:    integer(nemsio_intkind)   dimension in latitude
+!!  -      dimx:    integer(nemsio_intkind)   dimension in Longitude
+!!  -      dimz:    integer(nemsio_intkind)   number of levels
+!!  -      nframe:  integer(nemsio_intkind)   dimension of halo
+!!  -      nsoil:    integer(nemsio_intkind)  number of soil layers
+!!  -      ntrac:    integer(nemsio_intkind)  number of tracers
+!!  -      jcap:    integer(nemsio_intkind)   spectral truncation
+!!  -      ncldt:   integer(nemsio_intkind)   number of cloud types
+!!  -      idsl:    integer(nemsio_intkind)   semi-lagrangian id
+!!  -      idvc:    integer(nemsio_intkind)   vertical coordinate id
+!!  -      idvm:    integer(nemsio_intkind)   mass variable id
+!!  -      idrt:    integer(nemsio_intkind)   grid identifier
+!!                 (idrt=4 for gaussian grid,
+!!                  idrt=0 for equally-spaced grid including poles,
+!!                  idrt=256 for equally-spaced grid excluding poles)
+!!  -      rlon_min:real(nemsio_realkind)     minimal longtitude of regional domain (global:set to 0)
+!!  -      rlon_max:real(nemsio_realkind)     maximal longtitude of regional domain (global:set to 360.)
+!!  -      rlat_min:real(nemsio_realkind)     minimal longtitude of regional domain (global:set to -90)
+!!  -      rlat_max:real(nemsio_realkind)     maximal longtitude of regional domain (global:set to 90)
+!!  -      extrameta:logical(nemsio_logickind)extra meta data flag 
+!!  -      nmetavari:integer(nemsio_intkind)  number of extra meta data integer variables
+!!  -      nmetavarr:integer(nemsio_intkind)  number of extra meta data real variables
+!!  -      nmetavarl:integer(nemsio_intkind)  number of extra meta data logical variables
+!!  -      nmetavarc:integer(nemsio_intkind)  number of extra meta data character variables
+!!  -      nmetaaryi:integer(nemsio_intkind)  number of extra meta data integer arrays
+!!  -      nmetaaryr:integer(nemsio_intkind)  number of extra meta data real arrays
+!!  -      nmetaaryl:integer(nemsio_intkind)  number of extra meta data logical arrays
+!!  -      nmetaaryc:integer(nemsio_intkind)  number of extra meta data character arrays
+!!
+!!  -      recname: character(nemsio_charkind),allocatable    recname(:)
+!!  -      reclevtyp: character(nemsio_charkind*2),allocatable    reclevtyp(:)
+!!  -      reclev:  integer(nemsio_intkind),allocatable       reclev(:)
+!!  -      vcoord:  real(nemsio_realkind),allocatable         vcoord(:,:,:)
+!!  -      lat:  real(nemsio_realkind),allocatable         lat(:) lat for mess point
+!!  -      lon:  real(nemsio_realkind),allocatable         lon(:) lon for mess point
+!!  -      gvlat1d: real(nemsio_realkind),allocatable         gvlat1d(:) lat for wind point
+!!  -      gvlon1d: real(nemsio_realkind),allocatable         gvlon1d(:) lon for wind point
+!!  -      Cpi:     real(nemsio_realkind),allocatable         cpi(:)
+!!  -      Ri:      real(nemsio_realkind),allocatable         ri(:)
+!!
+!!  -      variname:character(nemsio_charkind)  names of extra meta data integer variables
+!!  -      varrname:character(nemsio_charkind)  names of extra meta data real variables
+!!  -      varlname:character(nemsio_charkind)  names of extra meta data logical variables
+!!  -      varcname:character(nemsio_charkind)  names of extra meta data character variables
+!!  -      varival: integer(nemsio_intkind)     values of extra meta data integer variables
+!!  -      varrval: real(nemsio_realkind)       values of extra meta data integer variables
+!!  -      varlval: logical(nemsio_logickind)   values of extra meta data integer variables
+!!  -      varcval: character(nemsio_charkind)  values of extra meta data integer variables
+!!  -      aryiname:character(nemsio_charkind)  names of extra meta data integer arrays
+!!  -      aryrname:character(nemsio_charkind)  names of extra meta data real arrays
+!!  -      arylname:character(nemsio_charkind)  names of extra meta data logical arrays
+!!  -      arycname:character(nemsio_charkind)  names of extra meta data character arrays
+!!  -      aryilen: integer(nemsio_intkind)     lengths of extra meta data integer arrays
+!!  -      aryilen: integer(nemsio_intkind)     number of extra meta data integer arrays
+!!  -      aryilen: integer(nemsio_intkind)     number of extra meta data integer arrays
 
-!!--- file handler
-!        gfname:  character(255)  file name
-!        gaction: character(nemsio_charkind)  read/write
-!        flunit:  integer(nemsio_intkind)  unit number  
-!
-! Public method
-!   nemsio_init
-!   nemsio_finalize
-!   nemsio_open
-!   nemsio_writerec
-!   nemsio_readirec
-!   nemsio_writerecv
-!   nemsio_readirecv
-!   nemsio_writerecw34
-!   nemsio_readirecw34
-!   nemsio_writerecvw34
-!   nemsio_readirecvw34
-!   nemsio_close
-!   nemsio_getfilehead
-! Possible return code
-!          0   Successful call
-!         -1   Open or close I/O error
-!         -2   array size
-!         -3   Meta data I/O error (possible EOF)
-!         -4   GETGB/PUTGB error
-!         -5   Search record and set GRIB message info error
-!         -6   allocate/deallocate error
-!         -7   set grib table
-!         -8   file meta data initialization (default:1152*576)
-!         -9   NOT nemsio type file
-!         -10  get/close file unit
-!         -11  read/write bin data
-!         -12  read/write NMM B grid lat lon
-!         -13  read/write NMM sfc var
-!         -15  read/write gsi 
-!         -17  get var from file header
-!         -20  nemsio init
-!
-!$$$ end module document block
+!!!--- file handler
+!!  -      gfname:  character(255)  file name
+!!  -      gaction: character(nemsio_charkind)  read/write
+!!  -      flunit:  integer(nemsio_intkind)  unit number  
+!!
+!! Public method
+!! -  nemsio_init
+!! -  nemsio_finalize
+!! -  nemsio_open
+!! -  nemsio_writerec
+!! -  nemsio_readirec
+!! -  nemsio_writerecv
+!! -  nemsio_readirecv
+!! -  nemsio_writerecw34
+!! -  nemsio_readirecw34
+!! -  nemsio_writerecvw34
+!! -  nemsio_readirecvw34
+!! -  nemsio_close
+!! -  nemsio_getfilehead
+!! Possible return code
+!!  -        0   Successful call
+!!  -       -1   Open or close I/O error
+!!  -       -2   array size
+!!  -       -3   Meta data I/O error (possible EOF)
+!!  -       -4   GETGB/PUTGB error
+!!  -       -5   Search record and set GRIB message info error
+!!  -       -6   allocate/deallocate error
+!!  -       -7   set grib table
+!!  -       -8   file meta data initialization (default:1152*576)
+!!  -       -9   NOT nemsio type file
+!!  -       -10  get/close file unit
+!!  -       -11  read/write bin data
+!!  -       -12  read/write NMM B grid lat lon
+!!  -       -13  read/write NMM sfc var
+!!  -       -15  read/write gsi 
+!!  -       -17  get var from file header
+!!  -       -20  nemsio init
+!!
+module nemsio_module_mpi
 !
   use mpi
 !

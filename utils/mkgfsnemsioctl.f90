@@ -1,9 +1,8 @@
-!- - - - -- - -- - -- - -- - - -- - --  -- - -- - -- - - -- - - - -- - --
-! the program create NEMS GFS  sfc ctl file
-!
-!   Mar 12, 2015   Jun Wang
-! - - - - -- - -- - -- - -- - - -- - --  -- - -- - -- - - -- - - - -- - --
-!
+!> @file
+!! the program create NEMS GFS  sfc ctl file
+!!
+!! @autor Jun Wang @date   Mar 12, 2015   
+!!
   program main
   use nemsio_module
   implicit none

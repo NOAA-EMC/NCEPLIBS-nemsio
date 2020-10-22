@@ -1,35 +1,30 @@
-!----------------------------------------------------------------------------
+!> @file
+!! read data fields from a nemsio file
+!! @author J. Wang @date 2011-01-13
+!!
+!! This module provides subroutines to read data fields out of a
+!!           nemsio file. The data file could be 'bin4','bin8', or 'grib',
+!!           The dat field could be read out by the record number
+!!           or by given the data field name, level type and level. Overload 
+!!           interfaces are provided to handle different data type (real(4)
+!!           or real(8) ) of the array that holds the data.
+!!
+!! Possible return code
+!! -         0   Successful call
+!! -        -31  get dimension ffrom gfile
+!! -        -32  read data field by record number using w3d
+!! -        -33  read data field by given data field name,level type and level using w3d
+!! -        -34  read data field by record number using w34
+!! -        -35  read data field by given data field name,level type and level using w34
+!! -        -41  read data field by record number from 4 byte real binary file 
+!! -        -42  read data field by record number from 8 byte real binary file 
+!! -        -43  read data field by field name,levtyp and lev from 4 byte real binary file 
+!! -        -44  read data field by field name,levtyp and lev from 8 byte real binary file 
+!! -        -45  read data field by record number using w34 from grib data
+!! -        -46  read data field by field name,level type and level using w34 from grib data
+!! -        -47  read data field by record number using w3d from grib data
+!! -        -48  read data field by field name,level type and level using w3d from grib data
 module nemsio_read
-!
-!$$$ documentation clock
-!
-! module: nemsio_read      read data fields from a nemsio file
-!  Programmer: J. Wang          date: 2011-01-13
-!
-! abstract: this module provides subroutines to read data fields out of a
-!           nemsio file. The data file could be 'bin4','bin8', or 'grib',
-!           The dat field could be read out by the record number
-!           or by given the data field name, level type and level. Overload 
-!           interfaces are provided to handle different data type (real(4)
-!           or real(8) ) of the array that holds the data.
-!
-! Possible return code
-!          0   Successful call
-!         -31  get dimension ffrom gfile
-!         -32  read data field by record number using w3d
-!         -33  read data field by given data field name,level type and level using w3d
-!         -34  read data field by record number using w34
-!         -35  read data field by given data field name,level type and level using w34
-!         -41  read data field by record number from 4 byte real binary file 
-!         -42  read data field by record number from 8 byte real binary file 
-!         -43  read data field by field name,levtyp and lev from 4 byte real binary file 
-!         -44  read data field by field name,levtyp and lev from 8 byte real binary file 
-!         -45  read data field by record number using w34 from grib data
-!         -46  read data field by field name,level type and level using w34 from grib data
-!         -47  read data field by record number using w3d from grib data
-!         -48  read data field by field name,level type and level using w3d from grib data
-!------------------------------------------------------------------------------
-!
   use nemsio_openclose
 !
   implicit none
