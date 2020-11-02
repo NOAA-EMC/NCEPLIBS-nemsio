@@ -8,6 +8,9 @@ Performs I/O for the NCEP models using NEMS. This is part of the
 For complete documentation see
 https://noaa-emc.github.io/NCEPLIBS-nemsio/.
 
+For more information about NEMS, the [NEMS NMMB documentation
+site](https://nomads.ncep.noaa.gov/txt_descriptions/NEMS_NMM_doc.shtml).
+
 ## Authors
 
 M.Iredell, J.Wang, Hang Lei, mahajan, other NCEP/EMC developers.
