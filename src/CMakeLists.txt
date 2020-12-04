@@ -22,7 +22,7 @@ if(${CMAKE_Fortran_COMPILER_ID} MATCHES "^(GNU)$" AND ${CMAKE_Fortran_COMPILER_V
  endif()
 
 set(lib_name ${PROJECT_NAME})
-set(module_dir ${CMAKE_CURRENT_BINARY_DIR}/include)
+set(module_dir ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 
 add_library(${lib_name} STATIC ${fortran_src})
 set_target_properties(${lib_name} PROPERTIES Fortran_MODULE_DIRECTORY
@@ -30,7 +30,7 @@ set_target_properties(${lib_name} PROPERTIES Fortran_MODULE_DIRECTORY
 
 target_include_directories(${lib_name} INTERFACE
   $<BUILD_INTERFACE:${module_dir}>
-  $<INSTALL_INTERFACE:include>)
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 #depends on w3nco and bacio, but users must link their own version
 target_link_libraries(${lib_name} PRIVATE MPI::MPI_Fortran)
@@ -41,9 +41,9 @@ install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(
   TARGETS ${LIB_TARGETS}
   EXPORT ${PROJECT_NAME}Exports
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib)
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 ### Package config
 include(CMakePackageConfigHelpers)
