@@ -23,11 +23,6 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|GNU|Clang|AppleClang)$")
-  message(
-    WARNING "Compiler not officially supported: ${CMAKE_Fortran_COMPILER_ID}")
-endif()
-
 find_package(MPI REQUIRED COMPONENTS Fortran)
 
 find_package(bacio REQUIRED)
