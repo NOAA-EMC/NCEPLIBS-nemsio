@@ -1,3 +1,7 @@
+# This is the build file for the src directory of NCEPLIBS-nemsio.
+#
+# Kyle Gerheiser
+
 set(fortran_src
   nemsio_module.f90
   nemsio_module_mpi.f90
@@ -32,7 +36,8 @@ target_include_directories(${lib_name} INTERFACE
   $<BUILD_INTERFACE:${module_dir}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-#depends on w3nco and bacio, but users must link their own version
+# Nemsio depends on w3emc and bacio, but users must link their own
+# version.
 target_link_libraries(${lib_name} PRIVATE MPI::MPI_Fortran)
 list(APPEND LIB_TARGETS ${lib_name})
 
@@ -53,14 +58,14 @@ export(EXPORT ${PROJECT_NAME}Exports
   NAMESPACE ${PROJECT_NAME}::
   FILE ${PROJECT_NAME}-targets.cmake)
 
-# sigio-config.cmake
+# nemsio-config.cmake
 configure_package_config_file(
   ${CMAKE_SOURCE_DIR}/cmake/PackageConfig.cmake.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake
   INSTALL_DESTINATION ${CONFIG_INSTALL_DESTINATION})
 install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake
   DESTINATION ${CONFIG_INSTALL_DESTINATION})
 
-# sigio-config-version.cmake
+# nemsio-config-version.cmake
 write_basic_package_version_file(
   ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
   VERSION ${PROJECT_VERSION}
