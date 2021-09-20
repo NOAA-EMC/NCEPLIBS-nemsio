@@ -1,3 +1,8 @@
+# This is the CMake file for the tests directory of the
+# NCEPLIBS-nemsio project.
+#
+# Kyle Gerheiser
+
 set(tstName read_nemsio)
 set(srcName read_nemsio.f90)
 set(exeName read_nemsio.x)
@@ -8,10 +13,10 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
 
 add_executable(${exeName} ${srcName})
 add_dependencies(${exeName} nemsio)
-target_link_libraries( ${exeName} PUBLIC nemsio bacio::bacio_4 w3nco::w3nco_d)
+target_link_libraries( ${exeName} PUBLIC nemsio bacio::bacio_4 w3emc::w3emc_d)
 add_test(NAME ${tstName} COMMAND ${exeName} testdataset)
 
 add_pfunit_ctest (nemsio_test
   TEST_SOURCES test_mod.pf
-  LINK_LIBRARIES nemsio bacio::bacio_4 w3nco::w3nco_d
+  LINK_LIBRARIES nemsio bacio::bacio_4 w3emc::w3emc_d
 )
