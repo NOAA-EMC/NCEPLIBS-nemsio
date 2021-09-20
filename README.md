@@ -2,13 +2,15 @@
 
 # NEMSIO
 
-Performs I/O for the NCEP models using NEMS. This is part of the
+The NCEPLIBS-nemsio library and utilities perform I/O for the NCEP
+models using NOAA Environmental Modeling System (NEMS) format. The
+NCEPLIBS-nemsio code is part of the
 [NCEPLIBS](https://github.com/NOAA-EMC/NCEPLIBS) project.
 
 For complete documentation see
 https://noaa-emc.github.io/NCEPLIBS-nemsio/.
 
-For more information about NEMS, the [NEMS NMMB documentation
+For more information about NEMS, see the [NEMS NMMB documentation
 site](https://nomads.ncep.noaa.gov/txt_descriptions/NEMS_NMM_doc.shtml).
 
 ## Authors
@@ -21,7 +23,7 @@ Code manager: Hang Lei
 
 This library requires the
 [NCEPLIBS-bacio](https://github.com/NOAA-EMC/NCEPLIBS-bacio) and the
-[NCEPLIBS-w3nco](https://github.com/NOAA-EMC/NCEPLIBS-w3nco)
+[NCEPLIBS-w3emc](https://github.com/NOAA-EMC/NCEPLIBS-w3emc)
 libraries.
 
 This library also requires an MPI-enabled Fortran compiler.
@@ -31,7 +33,7 @@ This library also requires an MPI-enabled Fortran compiler.
 ```
 mkdir build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX=/path/to/install /path/to/NCEPLIBS-nemsio
+cmake -DCMAKE_INSTALL_PREFIX=/path/to/install -DCMAKE_PREFIX_PATH="/path/to/bacio;/path/to/w3emc" ..
 make -j2
 make install
 ```
@@ -43,7 +45,7 @@ make install
 - `mkgfsnemsioctl` - create GrADS ctl file to read nemsio data in GrADS
 
 ### Testing
-`ctest` is used to read a test file. More tests will be added as needed
+`ctest` is used to read a test file.
 
 ## Disclaimer
 
