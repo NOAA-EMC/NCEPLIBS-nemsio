@@ -12,7 +12,7 @@ jobs:
 
     - name: install-mpi
       run: |
-        sudo apt-get install libmpich-dev
+        sudo apt-get install libmpich-dev doxygen
 
     - name: checkout-pfunit
       uses: actions/checkout@v2
