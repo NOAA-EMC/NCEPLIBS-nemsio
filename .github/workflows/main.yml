@@ -14,29 +14,6 @@ jobs:
       run: |
         sudo apt-get install libmpich-dev
 
-    - name: checkout-pfunit
-      uses: actions/checkout@v2
-      with:
-        repository: Goddard-Fortran-Ecosystem/pFUnit
-        path: pfunit
-
-    - name: cache-pfunit
-      id: cache-pfunit
-      uses: actions/cache@v2
-      with:
-        path: ~/pfunit
-        key: pfunit-${{ runner.os }}-${{ hashFiles('pfunit/VERSION') }}
-
-    - name: build-pfunit
-      if: steps.cache-pfunit.outputs.cache-hit != 'true'
-      run: |
-        cd pfunit
-        mkdir build
-        cd build
-        cmake .. -DSKIP_MPI=YES -DSKIP_ESMF=YES -DSKIP_FHAMCREST=YES -DCMAKE_INSTALL_PREFIX=~/pfunit
-        make -j2
-        make install
-
     - name: checkout-bacio
       uses: actions/checkout@v2
       with:
@@ -80,10 +57,10 @@ jobs:
         cd nemsio
         mkdir build 
         cd build
-        cmake .. -DENABLE_TESTS=ON -DCMAKE_PREFIX_PATH="~/pfunit;~/"
-        make -j2
+        cmake .. -DENABLE_TESTS=ON -DCMAKE_PREFIX_PATH="~/"
+        make VERBOSE=1 -j2
     
     - name: test
       run: |
         cd $GITHUB_WORKSPACE/nemsio/build
-        make test
+        ctest --output-on-failure

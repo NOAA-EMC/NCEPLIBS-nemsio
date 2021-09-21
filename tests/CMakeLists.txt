@@ -16,7 +16,5 @@ add_dependencies(${exeName} nemsio)
 target_link_libraries( ${exeName} PUBLIC nemsio bacio::bacio_4 w3emc::w3emc_d)
 add_test(NAME ${tstName} COMMAND ${exeName} testdataset)
 
-add_pfunit_ctest (nemsio_test
-  TEST_SOURCES test_mod.pf
-  LINK_LIBRARIES nemsio bacio::bacio_4 w3emc::w3emc_d
-)
+add_test (NAME nemsio_test COMMAND ${exeName})
+
