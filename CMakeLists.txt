@@ -11,8 +11,8 @@ project(
   LANGUAGES Fortran)
 
 include(GNUInstallDirs)
+include(CTest)
 
-option(ENABLE_TESTS "Build pfunit tests?" OFF)
 option(ENABLE_DOCS "Enable generation of doxygen-based documentation." OFF)
 
 if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
@@ -31,8 +31,7 @@ find_package(w3emc 2.9.0 REQUIRED)
 add_subdirectory(src)
 add_subdirectory(utils)
 
-if(ENABLE_TESTS)
-  find_package(PFUNIT REQUIRED)
+if(BUILD_TESTING)
   enable_testing()
   add_subdirectory(tests)
 endif()
