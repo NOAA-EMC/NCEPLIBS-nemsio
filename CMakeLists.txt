@@ -25,7 +25,7 @@ endif()
 
 find_package(MPI REQUIRED COMPONENTS Fortran)
 
-find_package(bacio REQUIRED)
+find_package(bacio 2.3.0 REQUIRED)
 find_package(w3emc 2.9.0 REQUIRED)
 
 add_subdirectory(src)
