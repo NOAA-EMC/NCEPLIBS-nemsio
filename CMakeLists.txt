@@ -33,6 +33,12 @@ endif()
 find_package(bacio 2.3.0 REQUIRED)
 find_package(w3emc 2.9.0 REQUIRED)
 
+if(bacio_VERSION GREATER_EQUAL 2.5.0)
+  set(bacio_name bacio)
+else()
+  set(bacio_name bacio_4)
+endif()
+
 add_subdirectory(src)
 add_subdirectory(utils)
 
