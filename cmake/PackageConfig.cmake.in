@@ -15,7 +15,9 @@ include(CMakeFindDependencyMacro)
 
 find_dependency(bacio CONFIG)
 find_dependency(w3emc CONFIG)
-find_dependency(MPI COMPONENTS Fortran)
+if(@MPI_Fortran_FOUND@)
+  find_dependency(MPI COMPONENTS Fortran)
+endif()
 
 get_target_property(@PROJECT_NAME@_BUILD_TYPES @PROJECT_NAME@::@PROJECT_NAME@ IMPORTED_CONFIGURATIONS)
 

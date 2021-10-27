@@ -13,6 +13,6 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
 
 add_executable(${exeName} ${srcName})
 add_dependencies(${exeName} nemsio)
-target_link_libraries( ${exeName} PUBLIC nemsio bacio::bacio_4 w3emc::w3emc_d)
+target_link_libraries( ${exeName} PUBLIC nemsio bacio::${bacio_name} w3emc::w3emc_d)
 add_test(NAME ${tstName} COMMAND ${exeName} testdataset)
 

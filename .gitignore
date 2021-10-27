@@ -1,7 +1,7 @@
-build/
-install/
+build*/
+install*/
 
-*.[ao]
+*.[aox]
 *.mod
 *.so
 
