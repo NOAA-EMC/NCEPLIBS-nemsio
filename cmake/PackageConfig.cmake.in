@@ -15,7 +15,7 @@ include(CMakeFindDependencyMacro)
 
 find_dependency(bacio CONFIG)
 find_dependency(w3emc CONFIG)
-if(@MPI_FOUND@)
+if(@MPI_Fortran_FOUND@)
   find_dependency(MPI COMPONENTS Fortran)
 endif()
 
