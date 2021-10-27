@@ -2,13 +2,16 @@
 #
 # Kyle Gerheiser
 
-set(fortran_src
+list(APPEND fortran_src
   nemsio_module.f90
-  nemsio_module_mpi.f90
   nemsio_openclose.f90
   nemsio_read.f90
   nemsio_write.f90)
 
+if(MPI_FOUND)
+  list(APPEND fortran_src
+    nemsio_module_mpi.f90)
+endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
   set(CMAKE_Fortran_FLAGS
@@ -38,7 +41,9 @@ target_include_directories(${lib_name} INTERFACE
 
 # Nemsio depends on w3emc and bacio, but users must link their own
 # version.
-target_link_libraries(${lib_name} PRIVATE MPI::MPI_Fortran)
+if(MPI_FOUND)
+  target_link_libraries(${lib_name} PRIVATE MPI::MPI_Fortran)
+endif()
 list(APPEND LIB_TARGETS ${lib_name})
 
 install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
