@@ -8,7 +8,7 @@ list(APPEND fortran_src
   nemsio_read.f90
   nemsio_write.f90)
 
-if(MPI_FOUND)
+if(MPI_Fortran_FOUND)
   list(APPEND fortran_src
     nemsio_module_mpi.f90)
 endif()
@@ -41,7 +41,7 @@ target_include_directories(${lib_name} INTERFACE
 
 # Nemsio depends on w3emc and bacio, but users must link their own
 # version.
-if(MPI_FOUND)
+if(MPI_Fortran_FOUND)
   target_link_libraries(${lib_name} PRIVATE MPI::MPI_Fortran)
 endif()
 list(APPEND LIB_TARGETS ${lib_name})
