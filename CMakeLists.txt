@@ -25,7 +25,7 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
 endif()
 
 if(ENABLE_MPI)
-  find_package(MPI COMPONENTS Fortran)
+  find_package(MPI REQUIRED COMPONENTS Fortran)
 endif()
 
 if (MPI_Fortran_FOUND)
