@@ -14,6 +14,7 @@ include(GNUInstallDirs)
 include(CTest)
 
 option(ENABLE_DOCS "Enable generation of doxygen-based documentation." OFF)
+option(ENABLE_MPI "Enable MPI I/O with nemsio_module_mpi" ON)
 
 if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
   message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -23,7 +24,10 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-find_package(MPI COMPONENTS Fortran)
+if(ENABLE_MPI)
+  find_package(MPI COMPONENTS Fortran)
+endif()
+
 if (MPI_Fortran_FOUND)
   message(STATUS "Parallel NEMSIO Enabled")
 else()
