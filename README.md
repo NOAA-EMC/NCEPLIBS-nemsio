@@ -13,11 +13,13 @@ https://noaa-emc.github.io/NCEPLIBS-nemsio/.
 For more information about NEMS, see the [NEMS NMMB documentation
 site](https://nomads.ncep.noaa.gov/txt_descriptions/NEMS_NMM_doc.shtml).
 
+To submit bug reports, feature requests, or other code-related issues including installation and usage questions, please create a [GitHub issue](https://github.com/NOAA-EMC/NCEPLIBS-nemsio/issues). For general NCEPLIBS inquiries, contact [Ed Hartnett](mailto:edward.hartnett@noaa.gov) (secondary point of contact [Alex Richert](mailto:alexander.richert@noaa.gov)).
+
 ## Authors
 
 M.Iredell, J.Wang, Hang Lei, mahajan, other NCEP/EMC developers.
 
-Code manager: Hang Lei
+Code manager: [Hang Lei](mailto:hang.lei@noaa.gov)
 
 ## Prerequisites
 
