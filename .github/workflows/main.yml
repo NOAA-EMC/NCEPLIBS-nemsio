@@ -42,7 +42,7 @@ jobs:
         cd w3emc
         mkdir build
         cd build
-        cmake .. -DCMAKE_INSTALL_PREFIX=~/w3emc -DCMAKE_PREFIX_PATH="~/"
+        cmake .. -DCMAKE_INSTALL_PREFIX=~/w3emc -DCMAKE_PREFIX_PATH="~/" -DBUILD_WITH_BUFR=OFF
         make -j2
         make install
 
