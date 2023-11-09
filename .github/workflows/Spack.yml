@@ -1,0 +1,94 @@
+# This is a CI workflow for the NCEPLIBS-nemsio project.
+#
+# This workflow builds nemsio with Spack, including installing with the "--test
+# root" option to run the Ctest suite. It also has a one-off job that validates
+# the recipe by ensuring that every CMake option that should be set in the
+# Spack recipe is so set.
+#
+# Alex Richert, Sep 2023
+name: Spack
+on:
+  push:
+    branches:
+    - develop
+  pull_request:
+    branches:
+    - develop
+
+jobs:
+  Spack:
+    strategy:
+      matrix:
+        os: ["ubuntu-latest"]
+        variants: ["+mpi", "~mpi"]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    
+    - name: checkout-nemsio
+      uses: actions/checkout@v4
+      with: 
+        path: nemsio
+
+    - name: cache-spack
+      id: cache-spack
+      uses: actions/cache@v3
+      with:
+        path: ~/spack-build-cache
+        key: spack-build-cache-${{ matrix.os }}-${{ matrix.variants }}-1
+
+    - name: spack-build-and-test
+      run: |
+        if [[ "${{ matrix.variants }}" =~ "+mpi" ]]; then
+          sudo apt install openmpi-bin libopenmpi-dev
+        fi
+        cd
+        git clone -c feature.manyFiles=true https://github.com/jcsda/spack
+        . spack/share/spack/setup-env.sh
+        spack env create nemsio-env
+        spack env activate nemsio-env
+        cp $GITHUB_WORKSPACE/nemsio/spack/package.py $SPACK_ROOT/var/spack/repos/builtin/packages/nemsio/package.py
+        spack develop --no-clone --path $GITHUB_WORKSPACE/nemsio nemsio@develop
+        spack config add "packages:all:providers:mpi:[openmpi]"
+        spack add nemsio@develop%gcc@11 ${{ matrix.variants }} ^bufr~python
+        spack external find cmake gmake openmpi
+        spack config add "packages:openmpi:buildable:false"
+        for mirror in $(spack mirror list | awk '{print $1}'); do
+          spack mirror rm --scope defaults ${mirror}
+        done
+        spack mirror add spack-build-cache ~/spack-build-cache
+        spack concretize
+        # Run installation and run CTest suite
+        if [  "${{ steps.cache.outputs.cache-hit }}" == true ]; then deps=only; else deps=auto; fi
+        spack install --verbose --fail-fast --no-check-signature --use-buildcache package:never,dependencies:${deps} --test root
+        # Run 'spack load' to check for obvious errors in setup_run_environment
+        spack load nemsio
+        ls $NEMSIO_LIB
+        spack buildcache push --only dependencies --unsigned --allow-root ~/spack-build-cache nemsio
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: spackci-ctest-output-${{ matrix.os }}-${{ matrix.openmp }}
+        path: ${{ github.workspace }}/nemsio/spack-build-*/Testing/Temporary/LastTest.log
+
+  # This job validates the Spack recipe by making sure each cmake build option is represented
+  recipe-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    
+    - name: checkout-nemsio
+      uses: actions/checkout@v4
+      with: 
+        path: nemsio
+
+    - name: recipe-check
+      run: |
+        echo "If this jobs fails, look at the most recently output CMake option below and make sure that option appears in spack/package.py"
+        for opt in $(grep -ioP '^option\(\K(?!(ENABLE_DOCS))[^ ]+' $GITHUB_WORKSPACE/nemsio/CMakeLists.txt) ; do
+          echo "Checking for presence of '$opt' CMake option in package.py"
+          grep -cP "define.+\b${opt}\b" $GITHUB_WORKSPACE/nemsio/spack/package.py
+        done
