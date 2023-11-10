@@ -13,7 +13,7 @@ if(MPI_Fortran_FOUND)
     nemsio_module_mpi.f90)
 endif()
 
-if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
+if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|IntelLLVM)$")
   set(CMAKE_Fortran_FLAGS
       "-g -traceback -convert big_endian -assume byterecl -fp-model strict ${CMAKE_Fortran_FLAGS}"
   )
