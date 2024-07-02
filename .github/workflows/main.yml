@@ -3,10 +3,10 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
-      FC: gfortran-9
-      CC: gcc-9
+      FC: gfortran-11
+      CC: gcc-11
 
     steps:
 
@@ -31,17 +31,15 @@ jobs:
         repo-cache: false
 
     - name: "Run CTest suite"
-      run: |
-        cd $GITHUB_WORKSPACE/nceplibs/src/NCEPLIBS-nemsio/build
-        ctest --output-on-failure
+      run: ctest --test-dir $GITHUB_WORKSPACE/nceplibs/src/NCEPLIBS-nemsio/ncepbuild --output-on-failure
 
     - name: "Build gcovr test coverage report"
-      run: |
-        cd $GITHUB_WORKSPACE/nceplibs/src/NCEPLIBS-nemsio/build
-        gcovr -r .. -v  --html-details -o test-coverage.html
+      run: gcovr --root $GITHUB_WORKSPACE/nceplibs/src/NCEPLIBS-nemsio --exclude $GITHUB_WORKSPACE/nceplibs/src/NCEPLIBS-nemsio/tests -v --html-details -o test-coverage.html
 
     - name: "Upload test coverage report"
       uses: actions/upload-artifact@v4
       with:
         name: nemsio-test-coverage
-        path: nceplibs/src/NCEPLIBS-nemsio/build/*.html
+        path: |
+          *.html
+          *.css
