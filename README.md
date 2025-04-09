@@ -30,14 +30,15 @@ libraries.
 
 This library also requires an MPI-enabled Fortran compiler.
 
-## Installing
+## Installation
 
-```
-mkdir build
-cd build
-cmake -DCMAKE_INSTALL_PREFIX=/path/to/install -DCMAKE_PREFIX_PATH="/path/to/bacio;/path/to/w3emc" ..
-make -j2
-make install
+```console
+git clone https://github.com/NOAA-EMC/NCEPLIBS-nemsio # or download a release from https://github.com/NOAA-EMC/NCEPLIBS-nemsio/releases
+# Use $CMAKE_PREFIX_PATH or -DCMAKE_PREFIX_PATH CMake argument to point to bacio and w3emc dependencies
+cmake -DCMAKE_INSTALL_PREFIX=/path/to/install -S NCEPLIBS-nemsio -B NCEPLIBS-nemsio/build # <add'l CMake options>
+cmake --build NCEPLIBS-nemsio/build --parallel 4
+ctest --test-dir NCEPLIBS-nemsio/build --parallel 4 # <add'l CTest options>
+cmake --install NCEPLIBS-nemsio/build
 ```
 
 ### Utilities
