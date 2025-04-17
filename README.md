@@ -41,6 +41,8 @@ ctest --test-dir NCEPLIBS-nemsio/build --parallel 4 # <add'l CTest options>
 cmake --install NCEPLIBS-nemsio/build
 ```
 
+NCEPLIBS-nemsio is also available through [Spack](https://spack.io) as '[nemsio](https://github.com/spack/spack/tree/develop/var/spack/repos/builtin/packages/nemsio)'.
+
 ### Utilities
 - `nemsio_get` - get the value of a variable in the file
 - `nemsio_read` - read a nemsio file and print statistics to screen
